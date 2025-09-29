@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  main:
+    allow-circular-references: true
+  datasource:
+    driver-class-name: ${world.datasource.driver-class-name}
+    url: jdbc:mysql://${world.datasource.host}:${world.datasource.port}/${world.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${world.datasource.username}
+    password: ${world.datasource.password}
+    type: com.alibaba.druid.pool.DruidDataSource
+
+mybatis:
+  #mapper????
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.pojo.entity
+  configuration:
+    #??????
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com:
+      example:
+        mapper: debug
+        service: info
+        controller: info
+
