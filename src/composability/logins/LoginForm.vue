@@ -10,7 +10,21 @@
 
     <div class="form-control mb-4">
       <label class="label text-xs font-semibold uppercase">密码</label>
-      <input v-model="form.password" type="password" placeholder="Password" class="input input-bordered w-full" />
+      <div class="relative">
+        <input
+          v-model="form.password"
+          :type="passwordVisible ? 'text' : 'password'"
+          placeholder="Password"
+          class="input input-bordered w-full pr-10"
+        />
+        <button
+          type="button"
+          @click="togglePasswordVisibility"
+          class="absolute inset-y-0 right-0 pr-3 flex items-center"
+        >
+          {{ passwordVisible ? '🙈' : '🐵' }}
+        </button>
+      </div>
     </div>
 
     <div class="form-control mb-4">
@@ -48,6 +62,12 @@ const form = ref({
   password: '',
   captchaInput: ''
 })
+
+const passwordVisible = ref(false)
+
+const togglePasswordVisibility = () => {
+  passwordVisible.value = !passwordVisible.value
+}
 
 const handleLogin = () => {
   console.log('登录参数：', form.value)

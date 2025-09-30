@@ -54,7 +54,7 @@
             mode === 'register' ? 'left-0 w-[40%]' : 'left-[60%] w-[40%]'
           ]"
         >
-          <img :src="loginImg" alt="Login Image" class="w-full h-full object-cover" />
+          <img :src="currentImage" alt="Login Image" class="w-full h-full object-cover" />
         </div>
       </div>
 
@@ -80,9 +80,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, onBeforeUnmount, computed } from 'vue'
 import loginBg from '@/assets/login/login.png'
 import loginImg from '@/assets/login/right.avif'
+import registerImg from '@/assets/login/left.webp'
 
 // 子组件
 import LoginForm from '@/composability/logins/LoginForm.vue'
@@ -91,6 +92,11 @@ import ForgotPasswordForm from '@/composability/logins/ForgotPasswordForm.vue'
 
 const isOpen = ref(false)
 const mode = ref<'login' | 'register' | 'forgot'>('login')
+
+// 根据模式计算当前应显示的图片
+const currentImage = computed(() => {
+  return mode.value === 'register' ? registerImg : loginImg
+})
 
 // 控制模态框
 const openModal = () => {
@@ -112,6 +118,7 @@ onBeforeUnmount(() => {
   document.body.style.overflow = 'auto'
 })
 </script>
+
 
 <style>
 .fade-enter-active, .fade-leave-active {

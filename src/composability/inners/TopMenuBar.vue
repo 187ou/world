@@ -99,7 +99,7 @@
 import { useRouter } from 'vue-router';
 // 顶部菜单栏逻辑
 const handleAuthorImageClick = () => {
-  window.open('https://cn.bing.com/images/search?view=detailV2&ccid=kzUhNDX9&id=F80AD61A9E5CA32103B4E39DF386793C80D7247A&thid=OIP.kzUhNDX9NvHDcLfpneNIIQHaKC&mediaurl=https%3a%2f%2fi0.hdslb.com%2fbfs%2fnew_dyn%2fe452cd4d00d3d8753755a655ee90e42b96972514.jpg&exph=976&expw=720&q=%e7%89%a2%e5%a4%a7%e5%9b%be%e7%89%87&FORM=IRPRST&ck=CC7CBD3D4E9D81D9CBCA4981850D3F83&selectedIndex=0&itb=0&idpp=overlayview&ajaxhist=0&ajaxserp=0', '_blank');
+  window.open('https://ts2.tc.mm.bing.net/th/id/OIP-C.5k1S6d07N77EBKMDT7BaiAHaHx?rs=1&pid=ImgDetMain&o=7&rm=3', '_blank');
 };
 
 const handleAuthorBGMClick = () => {
