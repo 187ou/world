@@ -1,4 +1,3 @@
-<!-- QuickAccessToolBar.vue -->
 <template>
   <div class="flex items-center p-2 bg-white border-b border-gray-300">
     <!-- 文件操作按钮 -->

@@ -1,6 +1,6 @@
 <template>
   <a-modal
-    :open="isVisible"
+    :open="props.isVisible"
     title="个人中心"
     @cancel="handleCancel"
     :footer="null"
