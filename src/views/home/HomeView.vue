@@ -2,7 +2,7 @@
   <div
     class="flex h-screen overflow-hidden bg-gray-50 text-gray-900 transition-colors duration-300">
     <!-- 左侧导航栏 -->
-    <SideBar :navItems="navItems" :secondaryNavItems="secondaryNavItems" />
+    <SideBar :navItems="navItems" :secondaryNavItems="secondaryNavItems" @show-personal-center="showPersonalCenterModal" />
     <!-- 主内容区 -->
     <div class="flex-1 flex flex-col overflow-y-auto">
       <!-- 内容滚动区域 -->
@@ -17,6 +17,7 @@
       </main>
     </div>
     <SearchModal :isVisible="isSearchModalVisible" :templates="templates" @update:isVisible="isSearchModalVisible = $event" />
+    <PersonalCenterModal :isVisible="isPersonalCenterVisible" @update:isVisible="isPersonalCenterVisible = $event" />
   </div>
 </template>
 
@@ -26,6 +27,7 @@ import SideBar from '@/composability/homes/SideBar.vue'
 import TemplateSection from '@/composability/homes/TemplateSection.vue'
 import DocumentSection from '@/composability/homes/DocumentSection.vue'
 import SearchModal from '@/components/home/SearchModal.vue'
+import PersonalCenterModal from '@/composability/homes/PersonalCenterModal.vue'
 
 import {
   FileAddOutlined,
@@ -153,9 +155,14 @@ onMounted(() => {
 })
 
 const isSearchModalVisible = ref(false)
+const isPersonalCenterVisible = ref(false)
 
 const showSearchModal = () => {
   isSearchModalVisible.value = true
+}
+
+const showPersonalCenterModal = () => {
+  isPersonalCenterVisible.value = true
 }
 </script>
 

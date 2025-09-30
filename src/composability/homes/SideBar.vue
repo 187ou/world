@@ -3,7 +3,7 @@
     class="w-16 md:w-45 bg-gradient-to-b from-white to-yellow-50/50 border-r border-gray-200 flex flex-col transition-all duration-300 z-10">
     <div class="flex items-center justify-center md:justify-start p-4 border-b border-gray-200">
       <div class="w-15 h-15 flex-shrink-0">
-        <img src="../../assets/home/word.png" class="w-full h-full object-cover" alt="">
+        <img src="@/assets/home/word.png" class="w-full h-full object-cover" alt="">
       </div>
       <h1 class="ml-3 text-lg font-semibold hidden md:block">World</h1>
     </div>
@@ -45,10 +45,10 @@
 
     <!-- 用户信息 -->
     <div class="p-4 border-t border-gray-200">
-      <div class="flex items-center cursor-pointer group">
+      <div class="flex items-center cursor-pointer group" @click="showPersonalCenter">
         <div
           class="w-8 h-8 rounded-full overflow-hidden border-2 border-transparent group-hover:border-blue-500 transition-all">
-          <img src="../../assets/home/person.png" alt="用户头像"
+          <img src="@/assets/home/person.png" alt="用户头像"
                class="w-full h-full object-cover">
         </div>
         <span class="ml-2 text-sm font-medium hidden md:block">User</span>
@@ -77,6 +77,12 @@ defineProps<{
   navItems: NavItem[];
   secondaryNavItems: NavItem[];
 }>()
+
+const emit = defineEmits(['show-personal-center'])
+
+const showPersonalCenter = () => {
+  emit('show-personal-center')
+}
 
 </script>
 

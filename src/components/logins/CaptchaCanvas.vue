@@ -68,9 +68,13 @@ const refreshCaptcha = () => {
   generateCaptcha()
 }
 
+const validate = (input: string): boolean => {
+  return input.toLowerCase() === correctCaptcha.toLowerCase()
+}
+
 onMounted(() => {
   generateCaptcha()
 })
 
-defineExpose({ refreshCaptcha })
+defineExpose({ refreshCaptcha, validate })
 </script>

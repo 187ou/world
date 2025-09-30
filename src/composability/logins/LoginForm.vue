@@ -53,7 +53,6 @@ const handleLogin = () => {
   console.log('登录参数：', form.value)
   alert('登录成功！')
   form.value = { email: '', password: '', captchaInput: '' }
-  // 通知父组件关闭
   emit('success')
 }
 

@@ -66,8 +66,8 @@ const emit = defineEmits<{
 const iconSrc = computed(() => {
   if (props.iconSrc) return props.iconSrc
   return props.isStarred
-    ? new URL('../../assets/home/收藏.png', import.meta.url).href
-    : new URL('../../assets/home/文档.png', import.meta.url).href
+    ? new URL('@/assets/home/收藏.png', import.meta.url).href
+    : new URL('@/assets/home/文档.png', import.meta.url).href
 })
 
 const showPreview = () => {
