@@ -26,7 +26,7 @@ import { onMounted, ref } from 'vue'
 import SideBar from '@/composability/homes/SideBar.vue'
 import TemplateSection from '@/composability/homes/TemplateSection.vue'
 import DocumentSection from '@/composability/homes/DocumentSection.vue'
-import SearchModal from '@/components/home/SearchModal.vue'
+import SearchModal from '@/composability/homes/SearchModal.vue'
 import PersonalCenterModal from '@/composability/homes/PersonalCenterModal.vue'
 
 import {
@@ -166,23 +166,23 @@ const showPersonalCenterModal = () => {
 }
 </script>
 
-<style scoped>
-/* 自定义滚动条 */
+
+<style scoped lang="scss">
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
-}
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+  &-track {
+    background: transparent;
+  }
 
-::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 163, 175, 0.5);
-  border-radius: 3px;
-}
+  &-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(156, 163, 175, 0.8);
+    &:hover {
+      background-color: rgba(156, 163, 175, 0.8);
+    }
+  }
 }
 </style>

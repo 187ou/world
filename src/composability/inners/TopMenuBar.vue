@@ -108,6 +108,6 @@ const handleAuthorBGMClick = () => {
 
 const router = useRouter();
 const goHome = () => {
-  router.push('/');
+  router.push('/home');
 };
 </script>

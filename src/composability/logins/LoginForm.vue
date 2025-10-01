@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import CaptchaCanvas from '@/components/logins/CaptchaCanvas.vue'
+import CaptchaCanvas from '@/components/common/CaptchaCanvas.vue'
 
 const form = ref({
   email: '',

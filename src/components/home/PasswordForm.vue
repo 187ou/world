@@ -35,7 +35,7 @@ import {
   Button as AButton,
   message
 } from 'ant-design-vue'
-import CaptchaCanvas from '@/components/logins/CaptchaCanvas.vue'
+import CaptchaCanvas from '@/components/common/CaptchaCanvas.vue'
 
 const passwordForm = ref({
   oldPassword: '',

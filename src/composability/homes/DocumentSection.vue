@@ -1,5 +1,5 @@
 <template>
-  <section class="h-[calc(100vh-300px)]">
+  <section class="document-section">
     <a-tabs v-model:activeKey="activeTabKey" class="mb-6">
       <template #rightExtra>
         <a-input-search
@@ -9,80 +9,81 @@
           @search="onSearch"
         />
       </template>
+
       <a-tab-pane key="recent" tab="最近文档">
-        <!-- 最近文档列表 -->
-        <div class="space-y-3">
-          <template v-for="(doc, index) in paginatedRecentDocuments" :key="index">
-            <DocumentItem
-              :doc="doc"
-              :is-starred="false"
-              @open="handleOpenDocument(doc)"
-              @toggle-star="handleToggleStar(doc)"
-              @preview="showPreviewModal"
-            />
+        <DocumentList
+          :documents="recentDocuments"
+          :icon-src="docIcon"
+          icon-alt="文档图标"
+          :page-size="5">
+          <template #actions="{ doc }">
+            <a-button
+              class="px-2 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]">
+              打开
+            </a-button>
+            <a-button
+              class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]">
+              收藏
+            </a-button>
+            <a-button
+              class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]"
+              @click="doc.previewUrl && showPreviewModal(doc.previewUrl)">
+              预览
+            </a-button>
           </template>
-        </div>
-        <div class="flex justify-center mt-4 p-4">
-          <a-pagination
-            v-model:current="currentRecentPage"
-            :total="recentDocuments.length"
-            :page-size="pageSize"
-            show-less-items
-            @change="onRecentPageChange"
-          />
-        </div>
+        </DocumentList>
       </a-tab-pane>
+
       <a-tab-pane key="starred" tab="我的收藏">
-        <!-- 我的收藏内容 -->
-        <div class="space-y-3">
-          <template v-for="(doc, index) in paginatedStarredDocuments" :key="index">
-            <DocumentItem
-              :doc="doc"
-              :is-starred="true"
-              @open="handleOpenDocument(doc)"
-              @toggle-star="handleToggleStar(doc)"
-              @preview="showPreviewModal"
-            />
+        <DocumentList
+          :documents="starredDocuments"
+          :icon-src="starIcon"
+          icon-alt="收藏图标"
+          :page-size="5">
+          <template #actions="{ doc }">
+            <a-button
+              class="px-2 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]">
+              打开
+            </a-button>
+            <a-button
+              class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]">
+              取消收藏
+            </a-button>
+            <a-button
+              class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]"
+              @click="doc.previewUrl && showPreviewModal(doc.previewUrl)">
+              预览
+            </a-button>
           </template>
-        </div>
-        <div class="flex justify-center mt-4 p-4">
-          <a-pagination
-            v-model:current="currentStarredPage"
-            :total="starredDocuments.length"
-            :page-size="pageSize"
-            show-less-items
-            @change="onStarredPageChange"
-          />
-        </div>
+        </DocumentList>
       </a-tab-pane>
     </a-tabs>
 
     <!-- 预览模态框 -->
-    <a-modal
-      v-model:open="previewModalVisible"
+    <PreviewModal
+      :visible="previewModalVisible"
+      @update:visible="previewModalVisible = $event"
+      :url="currentPreviewUrl"
       title="请勿点击内部！仅供预览！"
-      :footer="null"
-      width="80%"
       wrap-class-name="full-modal"
+      height="70vh"
       @cancel="handlePreviewCancel"
-    >
-      <div class="w-full h-[70vh]">
-        <iframe :src="currentPreviewUrl" frameborder="0" class="w-full h-full" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"></iframe>
-      </div>
-    </a-modal>
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import {
+  Button as AButton,
   Tabs as ATabs,
   TabPane as ATabPane,
-  InputSearch as AInputSearch,
-  Modal as AModal,
-  Pagination as APagination
+  InputSearch as AInputSearch
 } from 'ant-design-vue'
-import DocumentItem from '@/components/home/DocumentList.vue'
+import PreviewModal from '@/components/common/PreviewModal.vue'
+import DocumentList from '@/components/home/DocumentList.vue'
+import docIcon from '@/assets/home/文档.png'
+import starIcon from '@/assets/home/收藏.png'
 
 const activeTabKey = ref('recent')
 const searchQuery = ref('')
@@ -104,22 +105,6 @@ const handlePreviewCancel = () => {
   currentPreviewUrl.value = ''
 }
 
-// 处理打开文档
-const handleOpenDocument = (doc: DocumentItem) => {
-  console.log('打开文档:', doc.name)
-  // 实现打开文档逻辑
-}
-
-// 处理收藏/取消收藏
-const handleToggleStar = (doc: DocumentItem) => {
-  console.log('切换收藏状态:', doc.name)
-  // 实现收藏逻辑
-}
-
-const currentRecentPage = ref(1)
-const currentStarredPage = ref(1)
-const pageSize = 5
-
 interface DocumentItem {
   name: string
   path: string
@@ -127,46 +112,34 @@ interface DocumentItem {
   previewUrl?: string
 }
 
-const props = defineProps<{
+const { recentDocuments, starredDocuments } = defineProps<{
   recentDocuments: DocumentItem[]
   starredDocuments: DocumentItem[]
 }>()
-
-const paginatedRecentDocuments = computed(() => {
-  const start = (currentRecentPage.value - 1) * pageSize
-  const end = start + pageSize
-  return props.recentDocuments.slice(start, end)
-})
-
-const paginatedStarredDocuments = computed(() => {
-  const start = (currentStarredPage.value - 1) * pageSize
-  const end = start + pageSize
-  return props.starredDocuments.slice(start, end)
-})
-
-const onRecentPageChange = (page: number) => {
-  currentRecentPage.value = page
-}
-
-const onStarredPageChange = (page: number) => {
-  currentStarredPage.value = page
-}
 </script>
 
-<style scoped>
-.full-modal .ant-modal {
-  max-width: 100%;
-  top: 0;
-  padding-bottom: 0;
-  margin: 0;
+<style scoped lang="scss">
+.document-section {
+  height: calc(100vh - 300px);
 }
-.full-modal .ant-modal-content {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 74px);
-}
-.full-modal .ant-modal-body {
-  flex-grow: 1;
-  padding: 0;
+
+.full-modal {
+  .ant-modal {
+    max-width: 100%;
+    top: 0;
+    padding-bottom: 0;
+    margin: 0;
+  }
+
+  .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 74px);
+  }
+
+  .ant-modal-body {
+    flex-grow: 1;
+    padding: 0;
+  }
 }
 </style>
