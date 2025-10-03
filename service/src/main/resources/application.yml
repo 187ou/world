@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: world-book
   profiles:
     active: dev
   main:
@@ -14,11 +16,11 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
 
 mybatis:
-  #mapper????
+  #mapper配置
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.example.pojo.entity
   configuration:
-    #??????
+    #开启驼峰命名
     map-underscore-to-camel-case: true
 
 logging:
@@ -29,3 +31,18 @@ logging:
         service: info
         controller: info
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: false  # 禁用原生 Swagger UI
+
+# Knife4j 配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+    swagger-model-name: 实体类列表
+  # 生产环境建议关闭
+  production: false
