@@ -9,7 +9,7 @@
 
 ### 1. 安装依赖包
 ```bash
-pip install requests beautifulsoup4 cloudscraper selenium
+pip install requests beautifulsoup4 cloudscraper selenium webdriver-manager
 ```
 
 ### 2. Chrome驱动（可选）
