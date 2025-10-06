@@ -5,6 +5,7 @@ import com.example.common.path.PyPath;
 import com.example.mapper.BookMapper;
 import com.example.pojo.dto.BookDto;
 import com.example.pojo.vo.ChapterVo;
+import com.example.pojo.vo.OpenBookVo;
 import com.example.pojo.vo.SearchBookVo;
 import com.example.pyLink.PythonDataParser;
 import com.example.pyLink.PythonIntegration;
@@ -42,7 +43,7 @@ public class BookServiceImpl implements BookService {
 
             // 调用Python脚本
             String pythonResult = PythonIntegration.callPythonScript(searchKey, PyPath.SEARCH_BOOK_PY_PATH.getPath());
-            log.debug("Python返回原始数据: {}", pythonResult);
+            //log.debug("Python返回原始数据: {}", pythonResult);
 
             // 解析Python返回的数据
             List<SearchBookVo> bookList = PythonDataParser.parse(pythonResult, SearchBookVo.class);
@@ -78,7 +79,7 @@ public class BookServiceImpl implements BookService {
             // 3. 调用Python脚本
             String pythonResult = PythonIntegration.callPythonScript(encodedJson, PyPath.SEARCH_CHAPTER_PY_PATH.getPath());
             log.info("Python返回数据长度: {}", pythonResult.length());
-            log.debug("Python返回原始数据: {}", pythonResult);
+            //log.debug("Python返回原始数据: {}", pythonResult);
 
             // 4. 解析Python返回的数据
             List<ChapterVo> chapterVoList = PythonDataParser.parse(pythonResult, ChapterVo.class);
@@ -88,6 +89,31 @@ public class BookServiceImpl implements BookService {
 
         } catch (Exception e) {
             log.error("搜索章节失败: {}", e.getMessage(), e);
+            throw new RuntimeException("搜索服务暂时不可用", e);
+        }
+    }
+
+    /**
+     * 打开小说
+     * @param chapterLink
+     * @return
+     */
+    @Override
+    public OpenBookVo openBook(String chapterLink) {
+        try {
+            log.info("开始打开小说: {}", chapterLink);
+
+            //调用Python脚本
+            String pythonResult = PythonIntegration.callPythonScript(chapterLink, PyPath.OBTAIN_CHAPTER_TEXT_PY_PATH.getPath());
+            //log.debug("Python返回原始数据: {}", pythonResult);
+
+            //解析Python返回的数据
+            OpenBookVo openBookVo = PythonDataParser.parseSingle(pythonResult, OpenBookVo.class);
+            //log.info("打开小说完成，返回数据: {}", openBookVo);
+
+            return openBookVo;
+        } catch (Exception e) {
+            log.error("打开小说失败: {}", e.getMessage(), e);
             throw new RuntimeException("搜索服务暂时不可用", e);
         }
     }

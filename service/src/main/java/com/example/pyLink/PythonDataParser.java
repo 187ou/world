@@ -42,7 +42,30 @@ public class PythonDataParser<T> {
     }
 
     /**
-     * 静态工具方法，方便直接调用
+     * 解析Python返回的单个对象JSON数据
+     * @param pythonResult Python返回的JSON字符串
+     * @param clazz 目标类型的Class对象
+     * @return 解析后的单个对象，解析失败返回null
+     */
+    public T parseSingleObject(String pythonResult, Class<T> clazz) {
+        if (pythonResult == null || pythonResult.trim().isEmpty()) {
+            log.warn("Python返回数据为空");
+            return null;
+        }
+
+        try {
+            T result = objectMapper.readValue(pythonResult, clazz);
+            log.info("成功解析单个对象: {}", result);
+            return result;
+
+        } catch (Exception e) {
+            log.error("解析Python返回的单个对象失败: {}, 原始数据: {}", e.getMessage(), pythonResult);
+            return null;
+        }
+    }
+
+    /**
+     * 静态工具方法，方便直接调用 - 解析列表
      * @param pythonResult Python返回的JSON字符串
      * @param clazz 目标类型的Class对象
      * @return 解析后的对象列表
@@ -50,5 +73,16 @@ public class PythonDataParser<T> {
     public static <T> List<T> parse(String pythonResult, Class<T> clazz) {
         PythonDataParser<T> parser = new PythonDataParser<>();
         return parser.parsePythonResult(pythonResult, clazz);
+    }
+
+    /**
+     * 静态工具方法，方便直接调用 - 解析单个对象
+     * @param pythonResult Python返回的JSON字符串
+     * @param clazz 目标类型的Class对象
+     * @return 解析后的单个对象，解析失败返回null
+     */
+    public static <T> T parseSingle(String pythonResult, Class<T> clazz) {
+        PythonDataParser<T> parser = new PythonDataParser<>();
+        return parser.parseSingleObject(pythonResult, clazz);
     }
 }

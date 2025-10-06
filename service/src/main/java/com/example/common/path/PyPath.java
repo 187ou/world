@@ -13,7 +13,8 @@ import java.nio.file.StandardCopyOption;
 @Slf4j
 public enum PyPath {
     SEARCH_BOOK_PY_PATH("python/booksSearch.py"),
-    SEARCH_CHAPTER_PY_PATH("python/chapterSearch.py");
+    SEARCH_CHAPTER_PY_PATH("python/chapterSearch.py"),
+    OBTAIN_CHAPTER_TEXT_PY_PATH("python/ObtainChapterText.py");
 
     private final String classPath;
 

@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.pojo.dto.BookDto;
 import com.example.pojo.vo.ChapterVo;
+import com.example.pojo.vo.OpenBookVo;
 import com.example.pojo.vo.SearchBookVo;
 
 import java.util.List;
@@ -20,4 +21,11 @@ public interface BookService {
      * @return
      */
     List<ChapterVo> searchChapters(BookDto bookDto);
+
+    /**
+     * 打开小说
+     * @param chapterLink
+     * @return
+     */
+    OpenBookVo openBook(String chapterLink);
 }

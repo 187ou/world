@@ -3,6 +3,7 @@ package com.example.controller.admin;
 import com.example.common.result.UnifyList;
 import com.example.pojo.dto.BookDto;
 import com.example.pojo.vo.ChapterVo;
+import com.example.pojo.vo.OpenBookVo;
 import com.example.pojo.vo.SearchBookVo;
 import com.example.common.result.Result;
 import com.example.service.BookService;
@@ -51,5 +52,18 @@ public class BookController {
         List<ChapterVo> chapterList = bookService.searchChapters(bookDto);
         log.info("查询完成，找到 {} 章", chapterList.size());
         return Result.success(new UnifyList<>(chapterList.size(), chapterList));
+    }
+
+    /**
+     * 打开小说章节
+     * @param chapterLink
+     * @return
+     */
+    @PostMapping("/open")
+    public Result<OpenBookVo> openBook(String chapterLink){
+        log.info("打开小说章节：{}", chapterLink);
+        OpenBookVo openBookVo = bookService.openBook(chapterLink);
+        log.info("打开完成，返回章节内容");
+        return Result.success(openBookVo);
     }
 }
