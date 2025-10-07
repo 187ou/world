@@ -18,7 +18,8 @@
           :page-size="5">
           <template #actions="{ doc }">
             <a-button
-              class="px-2 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]">
+              class="px-2 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]"
+              @click="router.push({ path: '/inner', query: { url: doc.previewUrl } })">
               打开
             </a-button>
             <a-button
@@ -42,7 +43,8 @@
           :page-size="5">
           <template #actions="{ doc }">
             <a-button
-              class="px-2 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]">
+              class="px-2 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]"
+              @click="router.push({ path: '/inner', query: { url: doc.previewUrl } })">
               打开
             </a-button>
             <a-button
@@ -74,6 +76,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   Button as AButton,
   Tabs as ATabs,
@@ -84,6 +87,8 @@ import PreviewModal from '@/components/common/PreviewModal.vue'
 import DocumentList from '@/components/home/DocumentList.vue'
 import docIcon from '@/assets/home/文档.png'
 import starIcon from '@/assets/home/收藏.png'
+
+const router = useRouter()
 
 const activeTabKey = ref('recent')
 const searchQuery = ref('')

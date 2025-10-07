@@ -5,17 +5,17 @@
 
     <div class="form-control mb-4">
       <label class="label text-xs font-semibold uppercase">邮箱</label>
-      <input v-model="form.email" type="email" placeholder="请输入邮箱" class="input input-bordered w-full" />
+      <input v-model="form.email" type="email" placeholder="Email" class="input input-bordered w-full" />
     </div>
 
     <div class="form-control mb-4">
       <label class="label text-xs font-semibold uppercase">新密码</label>
-      <input v-model="form.password" type="password" placeholder="请输入新密码" class="input input-bordered w-full" />
+      <input v-model="form.password" type="password" placeholder="New Password" class="input input-bordered w-full" />
     </div>
 
     <div class="form-control mb-4">
       <label class="label text-xs font-semibold uppercase">确认密码</label>
-      <input v-model="form.confirmPassword" type="password" placeholder="请再次输入新密码" class="input input-bordered w-full" />
+      <input v-model="form.confirmPassword" type="password" placeholder="Password again" class="input input-bordered w-full" />
     </div>
 
     <div class="flex justify-between items-center">

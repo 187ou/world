@@ -33,7 +33,7 @@
         <input
           v-model="form.captchaInput"
           type="text"
-          placeholder="输入验证码"
+          placeholder="Man"
           class="input input-bordered w-full"
           maxlength="4"
         />

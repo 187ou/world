@@ -32,13 +32,20 @@ import SidePanel from '@/composability/inners/SidePanel.vue'
 import StatusBar from '@/composability/inners/StatusBar.vue'
 import { useEditorStore } from '@/stores/editorStore'
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
 const editorStore = useEditorStore()
 const editorRef = ref<HTMLElement | null>(null)
+const route = useRoute()
+const documentUrl = ref<string | null>(null)
 
 onMounted(() => {
   if (editorRef.value) {
     editorRef.value.innerHTML = editorStore.editorContent
+  }
+  if (route.query.url) {
+    documentUrl.value = route.query.url as string
+    console.log('Received URL:', documentUrl.value)
   }
 })
 </script>
