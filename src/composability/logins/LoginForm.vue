@@ -1,61 +1,56 @@
 <template>
-  <div>
-    <h1 class="text-[26px] font-normal text-[#55311c]">Man!</h1>
-    <p class="mt-2 mb-7 text-gray-700">What can I say. &nbsp;See you again.</p>
+  <FormContainer title="Man!" description="What can I say. &nbsp;See you again.">
+    <FormInput
+      label="邮箱"
+      v-model="form.email"
+      type="email"
+      placeholder="Email"
+    />
 
-    <div class="form-control mb-4">
-      <label class="label text-xs font-semibold uppercase">邮箱</label>
-      <input v-model="form.email" type="email" placeholder="Email" class="input input-bordered w-full" />
-    </div>
+    <FormInput
+      label="密码"
+      v-model="form.password"
+      type="password"
+      placeholder="Password"
+      showPasswordToggle
+    />
 
-    <div class="form-control mb-4">
-      <label class="label text-xs font-semibold uppercase">密码</label>
-      <div class="relative">
-        <input
-          v-model="form.password"
-          :type="passwordVisible ? 'text' : 'password'"
-          placeholder="Password"
-          class="input input-bordered w-full pr-10"
-        />
-        <button
-          type="button"
-          @click="togglePasswordVisibility"
-          class="absolute inset-y-0 right-0 pr-3 flex items-center"
-        >
-          {{ passwordVisible ? '🙈' : '🐵' }}
-        </button>
-      </div>
-    </div>
-
-    <div class="form-control mb-4">
-      <label class="label text-xs font-semibold uppercase">是真人吗？</label>
-      <div class="flex items-center gap-3">
-        <input
-          v-model="form.captchaInput"
-          type="text"
-          placeholder="Man"
-          class="input input-bordered w-full"
-          maxlength="4"
-        />
+    <FormInput
+      label="是真人吗？"
+      v-model="form.captchaInput"
+      type="captcha"
+      placeholder="Man"
+      :maxlength="4"
+    >
+      <template #captcha>
         <CaptchaCanvas ref="captcha" />
-      </div>
-    </div>
+      </template>
+    </FormInput>
 
     <div class="flex justify-between items-center">
-      <a href="#" class="text-sm text-gray-500" @click.prevent="$emit('switchMode','forgot')">忘记密码?</a>
-      <button class="btn text-white" @click="handleLogin">登录</button>
+      <FormLink linkClass="text-sm text-gray-500" @click="$emit('switchMode','forgot')">
+        忘记密码?
+      </FormLink>
+      <FormButton @click="handleLogin">登录</FormButton>
     </div>
 
     <p class="mt-10 text-sm text-center">
       没有账户?
-      <a href="#" class="text-[#8c7569]" @click.prevent="$emit('switchMode','register')">现在注册</a>
+      <FormLink linkClass="text-[#8c7569]" @click="$emit('switchMode','register')">
+        现在注册
+      </FormLink>
     </p>
-  </div>
+  </FormContainer>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import CaptchaCanvas from '@/components/common/CaptchaCanvas.vue'
+import { formFilters } from '@/filters/formFilters'
+import FormContainer from '@/components/logins/FromContainer.vue'
+import FormInput from '@/components/logins/FromInput.vue'
+import FormButton from '@/components/logins/FromButton.vue'
+import FormLink from '@/components/logins/FromLink.vue'
 
 const form = ref({
   email: '',
@@ -63,16 +58,36 @@ const form = ref({
   captchaInput: ''
 })
 
-const passwordVisible = ref(false)
-
-const togglePasswordVisibility = () => {
-  passwordVisible.value = !passwordVisible.value
-}
+const captcha = ref<InstanceType<typeof CaptchaCanvas> | null>(null)
 
 const handleLogin = () => {
+  // 邮箱验证
+  if (!form.value.email) return alert('请输入邮箱')
+  if (!formFilters.validateEmail(form.value.email)) return alert('邮箱格式不正确')
+
+  // 密码验证
+  if (!form.value.password) return alert('请输入密码')
+
+  // 验证码验证
+  if (!form.value.captchaInput) return alert('请输入验证码')
+  if (!captcha.value || !captcha.value.validate(form.value.captchaInput)) {
+    alert('验证码不正确')
+    // 刷新验证码
+    if (captcha.value) {
+      captcha.value.refreshCaptcha()
+    }
+    return
+  }
+
   console.log('登录参数：', form.value)
   alert('登录成功！')
+
+  // 清空表单并刷新验证码
   form.value = { email: '', password: '', captchaInput: '' }
+  if (captcha.value) {
+    captcha.value.refreshCaptcha()
+  }
+
   emit('success')
 }
 

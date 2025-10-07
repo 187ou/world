@@ -3,12 +3,23 @@
     <a-form-item label="旧密码">
       <a-input-password v-model:value="passwordForm.oldPassword" />
     </a-form-item>
+
     <a-form-item label="新密码">
-      <a-input-password v-model:value="passwordForm.newPassword" />
+      <a-input-password
+        v-model:value="passwordForm.newPassword"
+        @blur="validateNewPassword"
+      />
+      <div v-if="errors.newPassword" class="text-red-500 text-sm">{{ errors.newPassword }}</div>
     </a-form-item>
+
     <a-form-item label="确认新密码">
-      <a-input-password v-model:value="passwordForm.confirmPassword" />
+      <a-input-password
+        v-model:value="passwordForm.confirmPassword"
+        @blur="validateConfirmPassword"
+      />
+      <div v-if="errors.confirmPassword" class="text-red-500 text-sm">{{ errors.confirmPassword }}</div>
     </a-form-item>
+
     <a-form-item label="密码强度">
       <div class="password-strength">
         <a-progress
@@ -19,6 +30,7 @@
         <div class="strength-text">{{ passwordStrength.text }}</div>
       </div>
     </a-form-item>
+
     <a-form-item label="验证码">
       <div class="flex items-center gap-3">
         <a-input
@@ -29,6 +41,7 @@
         <CaptchaCanvas ref="captcha" />
       </div>
     </a-form-item>
+
     <a-form-item :wrapper-col="{ offset: 4, span: 16 }" style="text-align: center;">
       <a-button type="primary" @click="changePassword">修改密码</a-button>
     </a-form-item>
@@ -36,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 import {
   Form as AForm,
   FormItem as AFormItem,
@@ -47,6 +60,7 @@ import {
   Progress as AProgress
 } from 'ant-design-vue'
 import CaptchaCanvas from '@/components/common/CaptchaCanvas.vue'
+import { formFilters } from '@/filters/formFilters'
 
 const passwordForm = ref({
   oldPassword: '',
@@ -55,41 +69,31 @@ const passwordForm = ref({
   captchaInput: ''
 })
 
+const errors = reactive({
+  newPassword: '',
+  confirmPassword: ''
+})
+
 const captcha = ref<InstanceType<typeof CaptchaCanvas> | null>(null)
 
-// 密码强度计算
 const passwordStrength = computed(() => {
-  const password = passwordForm.value.newPassword
-  let strength = 0
-  let text = '弱'
-  let status: 'normal' | 'active' | 'success' | 'exception' = 'exception'
-
-  if (password.length >= 8) strength += 25
-  if (/[a-z]/.test(password)) strength += 25
-  if (/[A-Z]/.test(password)) strength += 25
-  if (/[0-9]/.test(password)) strength += 25
-
-  if (strength >= 75) {
-    text = '强'
-    status = 'success'
-  } else if (strength >= 50) {
-    text = '中'
-    status = 'active'
-  } else if (strength > 0) {
-    text = '弱'
-    status = 'normal'
-  }
-
-  return { percent: strength, text, status }
+  return formFilters.calculatePasswordStrength(passwordForm.value.newPassword)
 })
 
-// 监听密码变化，自动验证确认密码
-watch(() => passwordForm.value.newPassword, () => {
-  if (passwordForm.value.confirmPassword &&
-    passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    message.warning('两次输入的新密码不一致')
-  }
-})
+const validateNewPassword = () => {
+  const result = formFilters.validatePassword(passwordForm.value.newPassword)
+  errors.newPassword = result.message
+  return result.isValid
+}
+
+const validateConfirmPassword = () => {
+  const result = formFilters.validateConfirmPassword(
+    passwordForm.value.newPassword,
+    passwordForm.value.confirmPassword
+  )
+  errors.confirmPassword = result.message
+  return result.isValid
+}
 
 const changePassword = () => {
   if (!passwordForm.value.oldPassword) {
@@ -97,18 +101,17 @@ const changePassword = () => {
     return
   }
 
-  if (!passwordForm.value.newPassword) {
-    message.error('请输入新密码')
-    return
-  }
+  // 验证新密码
+  const isNewPasswordValid = validateNewPassword()
+  const isConfirmPasswordValid = validateConfirmPassword()
 
-  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    message.error('两次输入的新密码不一致')
+  if (!isNewPasswordValid || !isConfirmPasswordValid) {
+    message.error('请检查密码填写内容')
     return
   }
 
   // 检查密码强度
-  if (passwordStrength.value.percent < 50) {
+  if (passwordStrength.value.percent < 10) {
     message.warning('密码强度较弱，建议使用更复杂的密码')
   }
 
@@ -126,6 +129,11 @@ const changePassword = () => {
 
   message.success('修改成功')
 }
+
+watch(() => passwordForm.value.newPassword, () => {
+  validateNewPassword()
+  validateConfirmPassword()
+})
 </script>
 
 <style scoped>
