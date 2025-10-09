@@ -35,7 +35,7 @@
         <!--<springdoc.version>2.0.4</springdoc.version>-->
         <!-- 使用与 SpringDoc 2.1.0 兼容的 Knife4j 版本 -->
         <knife4j.version>4.4.0</knife4j.version>
-        <jackson-databind>2.20.0</jackson-databind>
+        <jackson.version>2.15.4</jackson.version>
         <commons-lang3>3.14.0</commons-lang3>
     </properties>
 
@@ -60,11 +60,23 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3}</version>
             </dependency>
+            <!-- 统一管理所有 Jackson 组件版本 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson-databind}</version>
+                <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
