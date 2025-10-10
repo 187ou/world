@@ -44,6 +44,8 @@ def get_chapters(input_data):
 
         # 方法1：直接选择所有li下的a标签
         chapter_links = soup.select('li a')
+        if not chapter_links:  # 如果li下没有a标签
+            chapter_links = soup.select('dd a')  # 则尝试爬取dd标签下的a标签
 
         # 需要先处理每个li
         # chapter_links = soup.find_all('li').find_all('a')
