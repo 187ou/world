@@ -2,6 +2,7 @@ package com.example.controller.admin;
 
 import com.example.common.result.UnifyList;
 import com.example.pojo.dto.BookDto;
+import com.example.pojo.dto.ChapterDto;
 import com.example.pojo.vo.ChapterVo;
 import com.example.pojo.vo.OpenBookVo;
 import com.example.pojo.vo.SearchBookVo;
@@ -47,7 +48,7 @@ public class BookController {
      * @return
      */
     @PostMapping("/search")
-    public Result<UnifyList<ChapterVo>> searchChapters(BookDto bookDto){
+    public Result<UnifyList<ChapterVo>> searchChapters(@RequestBody BookDto bookDto){
         log.info("查询小说章节：{}", bookDto);
         List<ChapterVo> chapterList = bookService.searchChapters(bookDto);
         log.info("查询完成，找到 {} 章", chapterList.size());
@@ -56,13 +57,13 @@ public class BookController {
 
     /**
      * 打开小说章节
-     * @param chapterLink
+     * @param chapter
      * @return
      */
     @PostMapping("/open")
-    public Result<OpenBookVo> openBook(String chapterLink){
-        log.info("打开小说章节：{}", chapterLink);
-        OpenBookVo openBookVo = bookService.openBook(chapterLink);
+    public Result<OpenBookVo> openBook(@RequestBody ChapterDto chapter){
+        log.info("打开小说章节：{}", chapter.getChapterLink());
+        OpenBookVo openBookVo = bookService.openBook(chapter.getChapterLink());
         log.info("打开完成，返回章节内容");
         return Result.success(openBookVo);
     }
