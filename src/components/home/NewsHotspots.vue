@@ -2,7 +2,7 @@
   <div class="news-hotspots">
     <div
       v-for="(hotspot, index) in currentPageData"
-      :key="index"
+      :key="hotspot.url"
       class="hotspot-item"
     >
       <span class="hotspot-title">{{ hotspot.title }}</span>
@@ -17,12 +17,13 @@
         <a-button
           type="link"
           class="action-btn open-btn"
-          @click="openDocument(hotspot.url)"
+          @click="openDocument(hotspot.url, index)"
         >
           打开
         </a-button>
       </div>
     </div>
+
 
     <a-pagination
       v-if="totalData.length > pageSize"
@@ -37,7 +38,7 @@
 
 <script setup lang="ts">
 import { Button as AButton, Pagination as APagination } from 'ant-design-vue'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 interface NewsHotspot {
@@ -51,9 +52,17 @@ const props = defineProps<{
 
 const router = useRouter()
 
-const openDocument = (url: string) => {
-  router.push({ path: '/inner', query: { url } })
-}
+const openDocument = (url: string, index: number) => {
+  if (!url.trim()) {
+    console.warn('无效的链接地址');
+    return;
+  }
+  router.push({ path: '/inner', query: {
+      url,
+      length: totalData.value.length,
+      chapterIndex: index + (currentPage.value - 1) * pageSize,
+    }, });
+};
 
 const pageSize = 10
 const currentPage = ref(1)
@@ -83,8 +92,13 @@ const mockHotspots: NewsHotspot[] = [
   { title: '交通建设新进展', url: 'https://news.example.com/traffic' },
   { title: '就业市场新动态', url: 'https://news.example.com/job' },
 ]
-</script>
 
+watch(totalData, (newVal, oldVal) => {
+  if (newVal.length !== oldVal.length) {
+    currentPage.value = 1;
+  }
+});
+</script>
 
 <style scoped lang="scss">
 .news-hotspots {
@@ -115,6 +129,7 @@ const mockHotspots: NewsHotspot[] = [
   text-overflow: ellipsis;
   white-space: nowrap;
   margin-right: 16px;
+  max-width: calc(100% - 120px);
 }
 
 .hotspot-actions {

@@ -1,19 +1,9 @@
-// src/utils/http.ts
 import axios from 'axios'
 import type { AxiosInstance, AxiosResponse } from 'axios'
-import { useUserStore } from '@/stores/user.ts'
+// import { useUserStore } from '@/stores/user.ts'
 
-// 定义统一返回类型
-export interface HttpResult<T = unknown> {
-  code: number
-  data?: T
-  message: string
-  success: boolean
-}
-
-// 创建 axios 实例
 const http: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  baseURL: 'http://localhost:8080',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -22,30 +12,22 @@ const http: AxiosInstance = axios.create({
 
 // 请求拦截器
 http.interceptors.request.use(
-  (config) => {
-    const userStore = useUserStore()
-    if (userStore.token && config.headers) {
-      config.headers.Authorization = `Bearer ${userStore.token}`
-    }
-
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
+  // (config) => {
+  //   const userStore = useUserStore()
+  //   if (userStore.token && config.headers) {
+  //     config.headers.Authorization = `Bearer ${userStore.token}`
+  //   }
+  //   return config
+  // },
+  // (error) => {
+  //   return Promise.reject(error)
+  // }
 )
 
 // 响应拦截器
 http.interceptors.response.use(
   (response: AxiosResponse) => {
-    const result: HttpResult = {
-      code: 0,
-      data: response.data,
-      message: 'ok',
-      success: true
-    }
-    response.data = result
-    return response
+    return response.data
   },
   (error) => {
     const status = error.response?.status || 500
@@ -57,8 +39,6 @@ http.interceptors.response.use(
         break
       case 401:
         message = '未授权或登录过期'
-        // localStorage.removeItem('token')
-        // window.location.href = '/login'
         break
       case 403:
         message = '没有权限访问'
@@ -71,18 +51,7 @@ http.interceptors.response.use(
         break
     }
 
-    const result: HttpResult = {
-      code: status,
-      data: null,
-      message,
-      success: false
-    }
-
-    // 同样地，把错误也标准化成相同的格式
-    return Promise.resolve({
-      ...error.response,
-      data: result
-    } as AxiosResponse<HttpResult>)
+    return Promise.reject(new Error(message))
   }
 )
 

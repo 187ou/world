@@ -2,23 +2,33 @@
   <div class="search-results">
     <a-list item-layout="horizontal" :data-source="templates">
       <template #renderItem="{ item }">
-        <a-list-item @click="() => $emit('toggle-expand', item)" class="clickable-item">
-          <a-list-item-meta :title="item.name" :description="item.description">
+        <a-list-item :key="item.name">
+          <a-list-item-meta
+            :title="item.name"
+            :description="item.description"
+          >
             <template #avatar>
-              <a-avatar :src="item.previewUrl" />
+              <a-avatar :src="item.avatar || man" />
             </template>
           </a-list-item-meta>
+
           <template #extra>
-            <a-button type="link">
-              {{ expandedItems.includes(item.name) ? '收起' : '展开' }}
+            <a-button type="link" @click="$emit('toggle-expand', item)">
+              {{ expandedSet.has(item.name) ? '收起' : '展开' }}
             </a-button>
           </template>
         </a-list-item>
 
-        <div v-if="expandedItems.includes(item.name)" class="expanded-content">
+        <div v-if="expandedSet.has(item.name)" class="expanded-content">
+          <div v-if="loadingSet.has(item.name)" class="loading-wrapper">
+            <a-spin size="small" />
+            <span class="loading-text">man~</span>
+          </div>
+
           <NewsHotspots
-            :hotspots="item.newsHotspots"
-            @open-preview="(h) => $emit('open-preview', h)"
+            v-else
+            :hotspots="item.newsHotspots || []"
+            @open-preview="(h: NewsHotspot) => $emit('open-preview', h)"
           />
         </div>
       </template>
@@ -27,8 +37,17 @@
 </template>
 
 <script setup lang="ts">
-import { Avatar as AAvatar, List as AList, ListItem as AListItem, ListItemMeta as AListItemMeta, Button as AButton } from 'ant-design-vue'
+import { computed } from 'vue'
+import {
+  Avatar as AAvatar,
+  List as AList,
+  ListItem as AListItem,
+  ListItemMeta as AListItemMeta,
+  Button as AButton,
+  Spin as ASpin
+} from 'ant-design-vue'
 import NewsHotspots from './NewsHotspots.vue'
+import man from '@/assets/home/man.webp'
 
 interface NewsHotspot {
   title: string
@@ -42,34 +61,39 @@ interface Template {
   newsHotspots?: NewsHotspot[]
 }
 
-defineProps<{
+const props = defineProps<{
   templates: Array<Template>
   expandedItems: string[]
+  loadingSet: Set<string>
 }>()
 
 defineEmits(['toggle-expand', 'open-preview'])
+
+const expandedSet = computed(() => new Set(props.expandedItems))
 </script>
 
 <style scoped lang="scss">
-.search-results {
-  max-height: 500px;
-  overflow-y: auto;
-}
+.expanded-content {
+  padding: 12px 16px;
+  background-color: #fafafa;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease-in-out;
 
-.clickable-item {
-  cursor: pointer;
-  transition: background-color 0.3s;
+  .loading-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0;
+    gap: 6px;
+    color: #888;
+    font-size: 13px;
 
-  &:hover {
-    background-color: #f5f5f5;
+    .loading-text {
+      user-select: none;
+      font-size: 13px;
+    }
   }
 }
-
-.expanded-content {
-  padding: 16px;
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  margin-bottom: 16px;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
-}
 </style>
+

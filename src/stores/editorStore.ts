@@ -7,7 +7,11 @@ export const useEditorStore = defineStore('editor', () => {
   const fontSize = ref(18)
   const isBold = ref(false)
   const isItalic = ref(false)
-  const editorContent = ref('<p>使用说明书</p>') // 初始化内容
+  const editorContent = ref('<p>使用说明书</p>')
+  const chapterLength = ref(0)
+  const chapterBegin = ref(0)
+  const chapterName = ref('')
+  const chapterTxtSize = ref('')
 
   function toggleBold() {
     isBold.value = !isBold.value
@@ -21,5 +25,5 @@ export const useEditorStore = defineStore('editor', () => {
     editorContent.value = content
   }
 
-  return { zoom, fontFamily, fontSize, isBold, isItalic, editorContent, toggleBold, toggleItalic, setEditorContent }
+  return { zoom, fontFamily, fontSize, isBold, isItalic, editorContent, chapterLength, chapterBegin, chapterName, chapterTxtSize, toggleBold, toggleItalic, setEditorContent }
 })

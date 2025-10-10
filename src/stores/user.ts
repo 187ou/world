@@ -1,19 +1,6 @@
-// src/stores/user.ts
 import { defineStore } from 'pinia'
-// import http, { HttpResult } from '@/utils/http.ts'
-import http from '@/utils/http'
-import type { HttpResult } from '@/utils/http'
-
-interface UserInfo {
-  id: number
-  name: string
-  email: string
-}
-
-interface LoginPayload {
-  email: string
-  password: string
-}
+import { login, fetchUserInfo } from '@/apis/auth'
+import type { UserInfo, LoginPayload } from '@/apis/auth'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -23,13 +10,18 @@ export const useUserStore = defineStore('user', {
   actions: {
     // 登录
     async login(payload: LoginPayload) {
-      const res: HttpResult<{ token: string }> = await http.post('/auth/login', payload)
-      if (res.success && res.data) {
-        this.token = res.data.token
-        localStorage.setItem('token', this.token)
-        return true
+      try {
+        const res = await login(payload)
+        if (res && res?.data) {
+          this.token = res.data.token
+          localStorage.setItem('token', this.token)
+          return true
+        }
+        return false
+      } catch (error) {
+        console.error('登录失败:', error)
+        return false
       }
-      return false
     },
 
     // 退出
@@ -41,12 +33,17 @@ export const useUserStore = defineStore('user', {
 
     // 获取用户信息
     async fetchUserInfo() {
-      const res: HttpResult<UserInfo> = await http.get('/auth/me')
-      if (res.success && res.data) {
-        this.user = res.data
-        return res.data
+      try {
+        const res = await fetchUserInfo()
+        if (res && res?.data) {
+          this.user = res.data
+          return res.data
+        }
+        return null
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
+        return null
       }
-      return null
     }
   }
 })

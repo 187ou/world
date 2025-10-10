@@ -10,7 +10,7 @@
             <a-input-number />
           </a-form-item>
           <a-form-item label="颜色">
-            <a-color-picker />
+            <!-- <a-color-picker /> -->
           </a-form-item>
           <a-form-item label="效果">
             <a-checkbox-group>

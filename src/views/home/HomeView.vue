@@ -70,32 +70,38 @@ const templates = [
   {
     name: '空白文档',
     description: '创建一个新的空白文档',
-    previewUrl: images['/src/assets/home/first.jpg']
+    previewUrl: images['/src/assets/home/first.jpg'],
+    avatar: images['/src/assets/home/first.jpg']
   },
   {
     name: '简历模板',
     description: '专业的简历和求职信',
-    previewUrl: images['/src/assets/home/second.jpg']
+    previewUrl: images['/src/assets/home/second.jpg'],
+    avatar: images['/src/assets/home/second.jpg']
   },
   {
     name: '报告模板',
     description: '正式的报告和文档',
-    previewUrl: images['/src/assets/home/third.webp']
+    previewUrl: images['/src/assets/home/third.webp'],
+    avatar: images['/src/assets/home/third.webp']
   },
   {
     name: '新闻稿',
     description: '专业的新闻稿格式',
-    previewUrl: images['/src/assets/home/fourth.jpg']
+    previewUrl: images['/src/assets/home/fourth.jpg'],
+    avatar: images['/src/assets/home/fourth.jpg']
   },
   {
     name: '会议记录',
     description: '结构化的会议记录',
-    previewUrl: images['/src/assets/home/fifth.jpg']
+    previewUrl: images['/src/assets/home/fifth.jpg'],
+    avatar: images['/src/assets/home/fifth.jpg']
   },
   {
     name: '项目计划',
     description: '详细的项目计划模板',
-    previewUrl: images['/src/assets/home/sixth.jpg']
+    previewUrl: images['/src/assets/home/sixth.jpg'],
+    avatar: images['/src/assets/home/sixth.jpg']
   }
 ]
 
