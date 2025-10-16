@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hncs.world.mapper.PurchasedMapper">
+
+    <resultMap id="BaseResultMap" type="com.hncs.world.pojo.entity.Purchased">
+            <id property="userId" column="user_id" />
+            <id property="bookId" column="book_id" />
+            <result property="bookLink" column="book_link" />
+            <result property="purchasedTime" column="purchased_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id,book_id,book_link,purchased_time
+    </sql>
+</mapper>
