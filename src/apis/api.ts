@@ -3,12 +3,12 @@ import type { SearchBookVo } from '@/types/book.ts';
 
 /**
  * 搜索小说
- * @param searchKey 搜索关键词
+ * @param bookName 搜索关键词
  * @returns 后端直接返回的响应数据（包含code、message、data，其中data是{total, list}结构）
  */
-export const searchBooks = async (searchKey: string) => {
-  return await http.get('/admin/search', {
-    params: { searchKey }
+export const searchBooks = async (bookName: string) => {
+  return await http.get('/book/search', {
+    params: { bookName }
   });
 };
 
@@ -18,7 +18,7 @@ export const searchBooks = async (searchKey: string) => {
  * @returns 后端返回的章节列表数据（包含code、message、data，其中data是{total, list}结构）
  */
 export const searchChapters = async (bookDto: SearchBookVo) => {
-  return await http.post('/admin/search', bookDto);
+  return await http.post('/book/preview', bookDto);
 };
 
 /**
@@ -27,7 +27,7 @@ export const searchChapters = async (bookDto: SearchBookVo) => {
  * @returns 后端返回的章节内容数据（包含code、message、data，其中data是OpenBookVo结构）
  */
 export const openBook = async (chapterLink: string) => {
-  return await http.post('/admin/open', { chapterLink });
+  return await http.post('/book/open', { chapterLink });
 };
 
 

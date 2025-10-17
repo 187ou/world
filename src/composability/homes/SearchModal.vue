@@ -135,6 +135,7 @@ const onSearch = async (searchValue: string) => {
 
   searching.value = true
   try {
+    console.log('搜索书名:', searchValue.trim())
     const res = await searchBooks(searchValue.trim())
     if (res?.data?.list && Array.isArray(res.data.list)) {
       searchResults.value = res.data.list

@@ -15,6 +15,8 @@ This template should help get you started developing with Vue 3 in Vite.
 
 views主界面框架
 
+types为封装类型
+
 filters封装过滤器
 
 composability为布局组件

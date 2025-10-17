@@ -31,6 +31,15 @@
       </div>
     </a-form-item>
 
+    <a-form-item label="邮箱">
+      <a-input
+        v-model:value="passwordForm.email"
+        placeholder="请输入邮箱地址"
+        @blur="validateEmail"
+      />
+      <div v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</div>
+    </a-form-item>
+
     <a-form-item label="验证码">
       <div class="flex items-center gap-3">
         <a-input
@@ -66,12 +75,14 @@ const passwordForm = ref({
   oldPassword: '',
   newPassword: '',
   confirmPassword: '',
-  captchaInput: ''
+  captchaInput: '',
+  email: ''
 })
 
 const errors = reactive({
   newPassword: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  email: ''
 })
 
 const captcha = ref<InstanceType<typeof CaptchaCanvas> | null>(null)
@@ -95,18 +106,29 @@ const validateConfirmPassword = () => {
   return result.isValid
 }
 
+// 添加邮箱验证函数
+const validateEmail = () => {
+  const result = formFilters.validateEmail(passwordForm.value.email)
+  errors.email = result.message
+  return result.isValid
+}
+
+// 修改 changePassword
 const changePassword = () => {
   if (!passwordForm.value.oldPassword) {
     message.error('请输入旧密码')
     return
   }
 
+  // 验证邮箱
+  const isEmailValid = validateEmail()
+
   // 验证新密码
   const isNewPasswordValid = validateNewPassword()
   const isConfirmPasswordValid = validateConfirmPassword()
 
-  if (!isNewPasswordValid || !isConfirmPasswordValid) {
-    message.error('请检查密码填写内容')
+  if (!isEmailValid || !isNewPasswordValid || !isConfirmPasswordValid) {
+    message.error('请检查表单填写内容')
     return
   }
 
@@ -124,11 +146,13 @@ const changePassword = () => {
     oldPassword: '',
     newPassword: '',
     confirmPassword: '',
-    captchaInput: ''
+    captchaInput: '',
+    email: ''
   }
 
   message.success('修改成功')
 }
+
 
 watch(() => passwordForm.value.newPassword, () => {
   validateNewPassword()

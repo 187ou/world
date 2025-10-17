@@ -2,7 +2,7 @@
   <div
     class="flex h-screen overflow-hidden bg-gray-50 text-gray-900 transition-colors duration-300">
     <!-- 左侧导航栏 -->
-    <SideBar :navItems="navItems" :secondaryNavItems="secondaryNavItems" @show-personal-center="showPersonalCenterModal" />
+    <SideBar :navItems="navItems" :secondaryNavItems="secondaryNavItems" @show-personal-center="showPersonalCenterModal" @show-novel-rank="showNovelRankModal" />
     <!-- 主内容区 -->
     <div class="flex-1 flex flex-col overflow-y-auto">
       <!-- 内容滚动区域 -->
@@ -13,11 +13,13 @@
         <DocumentSection
           :recentDocuments="recentDocuments"
           :starredDocuments="starredDocuments"
+          :purchasedDocuments="purchasedDocuments"
         />
       </main>
     </div>
     <SearchModal :isVisible="isSearchModalVisible" :templates="templates" @update:isVisible="isSearchModalVisible = $event" />
     <PersonalCenterModal :isVisible="isPersonalCenterVisible" @update:isVisible="isPersonalCenterVisible = $event" />
+    <NovelRankModal :isVisible="isNovelRankModalVisible" @update:isVisible="isNovelRankModalVisible = $event" @select-novel="handleNovelSelected" />
   </div>
 </template>
 
@@ -28,6 +30,8 @@ import TemplateSection from '@/composability/homes/TemplateSection.vue'
 import DocumentSection from '@/composability/homes/DocumentSection.vue'
 import SearchModal from '@/composability/homes/SearchModal.vue'
 import PersonalCenterModal from '@/composability/homes/PersonalCenterModal.vue'
+import NovelRankModal from '@/components/home/NovelRankModal.vue'
+import type { RankItem } from '@/types/rank'
 
 import {
   FileAddOutlined,
@@ -155,6 +159,28 @@ const starredDocuments = [
   }
 ]
 
+// 最近购买文档数据
+const purchasedDocuments = [
+  {
+    name: 'Vue.js 3 实战.pdf',
+    path: '本地 > 学习 > 前端',
+    modified: '今天 09:00',
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+  },
+  {
+    name: '深入理解 TypeScript.epub',
+    path: 'OneDrive > 学习 > 编程',
+    modified: '昨天 15:00',
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+  },
+  {
+    name: '设计模式精讲.mobi',
+    path: 'SharePoint > 学习 > 架构',
+    modified: '2023/11/29 11:00',
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+  }
+]
+
 // 初始化
 onMounted(() => {
   // console.log('实验挂载中……')
@@ -162,6 +188,7 @@ onMounted(() => {
 
 const isSearchModalVisible = ref(false)
 const isPersonalCenterVisible = ref(false)
+const isNovelRankModalVisible = ref(false)
 
 const showSearchModal = () => {
   isSearchModalVisible.value = true
@@ -169,6 +196,15 @@ const showSearchModal = () => {
 
 const showPersonalCenterModal = () => {
   isPersonalCenterVisible.value = true
+}
+
+const showNovelRankModal = () => {
+  isNovelRankModalVisible.value = true
+}
+
+const handleNovelSelected = (novel: RankItem) => {
+  console.log('Selected Novel:', novel)
+  // 在这里可以添加处理选中小说的逻辑，例如跳转到小说详情页或显示小说内容
 }
 </script>
 

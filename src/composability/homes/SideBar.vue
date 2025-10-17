@@ -14,6 +14,7 @@
         <a-menu-item v-for="(item, index) in navItems" :key="index"
                      class="py-2 px-4 rounded-lg hover:bg-blue-100 group">
           <a
+            @click="handleNavClick(item.label)"
             href="#"
             class="flex items-center justify-center md:justify-start text-gray-600 hover:text-blue-600 transition-all duration-300 relative z-10"
           >
@@ -34,8 +35,7 @@
           </template>
           <a-menu-item v-for="(item, index) in secondaryNavItems" :key="`sub-item-${index}`"
                        class="py-2 px-4 rounded-lg hover:bg-blue-100 group">
-            <a href="#"
-               class="flex items-center justify-center md:justify-start text-gray-600 hover:text-blue-600 transition-all duration-300 relative z-10">
+            <a class="flex items-center justify-center md:justify-start text-gray-600 hover:text-blue-600 transition-all duration-300 relative z-10">
               <span class="ml-3 hidden md:block">{{ item.label }}</span>
             </a>
           </a-menu-item>
@@ -78,11 +78,17 @@ defineProps<{
   secondaryNavItems: NavItem[];
 }>()
 
-const emit = defineEmits(['show-personal-center'])
+const emit = defineEmits(['show-personal-center', 'show-novel-rank'])
 
 const showPersonalCenter = () => {
   emit('show-personal-center')
 }
 
+const handleNavClick = (label: string) => {
+  if (label === '历史版本') {
+    console.log('点击了历史版本')
+    emit('show-novel-rank')
+  }
+}
 </script>
 

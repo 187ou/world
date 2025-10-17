@@ -35,7 +35,7 @@
         </DocumentList>
       </a-tab-pane>
 
-      <a-tab-pane key="starred" tab="我的收藏">
+      <a-tab-pane key="starred" tab="文档收藏">
         <DocumentList
           :documents="starredDocuments"
           :icon-src="starIcon"
@@ -50,6 +50,27 @@
             <a-button
               class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]">
               取消收藏
+            </a-button>
+            <a-button
+              class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]"
+              @click="doc.previewUrl && showPreviewModal(doc.previewUrl)">
+              预览
+            </a-button>
+          </template>
+        </DocumentList>
+      </a-tab-pane>
+
+      <a-tab-pane key="purchased" tab="我的购买">
+        <DocumentList
+          :documents="purchasedDocuments"
+          :icon-src="docIcon"
+          icon-alt="文档图标"
+          :page-size="5">
+          <template #actions="{ doc }">
+            <a-button
+              class="px-2 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]"
+              @click="router.push({ path: '/inner', query: { url: doc.previewUrl } })">
+              打开
             </a-button>
             <a-button
               class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]"
@@ -117,9 +138,10 @@ interface DocumentItem {
   previewUrl?: string
 }
 
-const { recentDocuments, starredDocuments } = defineProps<{
+const { recentDocuments, starredDocuments, purchasedDocuments } = defineProps<{
   recentDocuments: DocumentItem[]
   starredDocuments: DocumentItem[]
+  purchasedDocuments: DocumentItem[]
 }>()
 </script>
 
