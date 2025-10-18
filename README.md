@@ -19,7 +19,7 @@ types为封装类型
 
 filters封装过滤器
 
-composability为布局组件
+layouts为布局组件
 
 api为接口请求，用于封装接口请求
 

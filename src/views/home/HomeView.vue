@@ -25,11 +25,11 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import SideBar from '@/composability/homes/SideBar.vue'
-import TemplateSection from '@/composability/homes/TemplateSection.vue'
-import DocumentSection from '@/composability/homes/DocumentSection.vue'
-import SearchModal from '@/composability/homes/SearchModal.vue'
-import PersonalCenterModal from '@/composability/homes/PersonalCenterModal.vue'
+import SideBar from '@/layouts/homes/SideBar.vue'
+import TemplateSection from '@/layouts/homes/TemplateSection.vue'
+import DocumentSection from '@/layouts/homes/DocumentSection.vue'
+import SearchModal from '@/layouts/homes/SearchModal.vue'
+import PersonalCenterModal from '@/layouts/homes/PersonalCenterModal.vue'
 import NovelRankModal from '@/components/home/NovelRankModal.vue'
 import type { RankItem } from '@/types/rank'
 

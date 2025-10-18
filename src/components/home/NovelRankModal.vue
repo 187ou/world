@@ -1,10 +1,15 @@
 <template>
   <a-modal :open="isVisible" @cancel="handleCancel" title="小说热度排行榜" :footer="null">
-    <div class="rank-list">
-      <div v-for="(item, index) in rankData" :key="index" class="rank-item" @click="handleNovelClick(item)">
-        <span class="rank-number">{{ index + 1 }}</span>
-        <span class="novel-title">{{ item.title }}</span>
-        <span class="heat-value">{{ item.heat }}次</span>
+    <div class="p-5 max-h-[400px] overflow-y-auto">
+      <div
+        v-for="(item, index) in rankData"
+        :key="index"
+        class="flex justify-between items-center p-3 my-1 border-b border-gray-100 cursor-pointer hover:bg-blue-50 transition-colors duration-300"
+        @click="handleNovelClick(item)"
+      >
+        <span class="w-8 font-bold text-lg text-blue-500">{{ index + 1 }}</span>
+        <span class="flex-1 mx-4 text-base text-gray-700">{{ item.title }}</span>
+        <span class="font-bold text-red-500">{{ item.heat }}次</span>
       </div>
     </div>
   </a-modal>
@@ -37,3 +42,6 @@ const rankData: RankItem[] = [
   { title: '圣墟', url: 'https://www.biquge.com/book/1', heat: 543 }
 ]
 </script>
+
+<style scoped>
+</style>

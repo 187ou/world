@@ -14,6 +14,9 @@
         <a-tab-pane key="2" tab="修改密码">
           <PasswordForm />
         </a-tab-pane>
+        <a-tab-pane key="3" tab="会员中心">
+          <MembershipCenter />
+        </a-tab-pane>
       </a-tabs>
     </div>
   </a-modal>
@@ -24,6 +27,7 @@ import { ref } from 'vue'
 import { Modal as AModal, Tabs as ATabs, TabPane as ATabPane } from 'ant-design-vue'
 import UserInfoForm from '@/components/home/UserInfoForm.vue'
 import PasswordForm from '@/components/home/PasswordForm.vue'
+import MembershipCenter from '@/components/home/MembershipCenter.vue'
 
 const props = defineProps<{
   isVisible: boolean

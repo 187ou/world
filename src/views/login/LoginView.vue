@@ -86,9 +86,9 @@ import loginImg from '@/assets/login/right.avif'
 import registerImg from '@/assets/login/left.webp'
 
 // 子组件
-import LoginForm from '@/composability/logins/LoginForm.vue'
-import RegisterForm from '@/composability/logins/RegisterForm.vue'
-import ForgotPasswordForm from '@/composability/logins/ForgotPasswordForm.vue'
+import LoginForm from '@/layouts/logins/LoginForm.vue'
+import RegisterForm from '@/layouts/logins/RegisterForm.vue'
+import ForgotPasswordForm from '@/layouts/logins/ForgotPasswordForm.vue'
 
 const isOpen = ref(false)
 const mode = ref<'login' | 'register' | 'forgot'>('login')

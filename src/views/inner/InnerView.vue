@@ -26,10 +26,10 @@
 </template>
 
 <script setup lang="ts">
-import TopMenuBar from '@/composability/inners/TopMenuBar.vue'
-import QuickAccessToolbar from '@/composability/inners/QuickAccessToolBar.vue'
-import SidePanel from '@/composability/inners/SidePanel.vue'
-import StatusBar from '@/composability/inners/StatusBar.vue'
+import TopMenuBar from '@/layouts/inners/TopMenuBar.vue'
+import QuickAccessToolbar from '@/layouts/inners/QuickAccessToolBar.vue'
+import SidePanel from '@/layouts/inners/SidePanel.vue'
+import StatusBar from '@/layouts/inners/StatusBar.vue'
 import { useEditorStore } from '@/stores/editorStore'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'

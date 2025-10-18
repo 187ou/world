@@ -63,8 +63,8 @@
       <a-tab-pane key="purchased" tab="我的购买">
         <DocumentList
           :documents="purchasedDocuments"
-          :icon-src="docIcon"
-          icon-alt="文档图标"
+          :icon-src="buyIcon"
+          icon-alt="购买图标"
           :page-size="5">
           <template #actions="{ doc }">
             <a-button
@@ -108,6 +108,7 @@ import PreviewModal from '@/components/common/PreviewModal.vue'
 import DocumentList from '@/components/home/DocumentList.vue'
 import docIcon from '@/assets/home/文档.png'
 import starIcon from '@/assets/home/收藏.png'
+import buyIcon from '@/assets/home/购买.png'
 
 const router = useRouter()
 
