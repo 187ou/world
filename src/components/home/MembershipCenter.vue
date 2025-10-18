@@ -13,7 +13,7 @@
               getCurrentLevelInfo().color
             ]"
           >
-            <span :class="getCurrentLevelInfo().textColor">{{ getCurrentLevelInfo().id }}</span>
+            <span :class="getCurrentLevelInfo().textColor">Lv {{ getCurrentLevelInfo().id }}</span>
           </div>
           <div class="ml-4">
             <h2 class="text-3xl font-bold text-gray-800">{{ getCurrentLevelInfo().name }}</h2>
@@ -24,7 +24,7 @@
     </div>
 
     <div class="all-levels">
-      <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">会员等级体系</h3>
+      <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">会员成长体系</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
           v-for="(level, index) in membershipLevels"
@@ -73,7 +73,7 @@
           <div class="mt-4 pt-4 border-t border-gray-100">
             <div class="flex justify-between text-xs text-gray-500 mb-1">
               <span>等级要求</span>
-              <span>{{ index * 25 }}积分</span>
+              <span>{{ index * 1000 * index + 1000 }}积分</span>
             </div>
             <div class="w-full bg-gray-100 rounded-full h-2">
               <div
@@ -104,39 +104,38 @@ interface MembershipLevel {
 }
 
 const currentLevel = ref<number>(1)
-// 新增当前积分数据
 const currentPoints = ref<number>(68)
 
 const membershipLevels: MembershipLevel[] = [
   {
     id: 1,
-    name: '普通会员',
-    description: '基础会员权益',
-    benefits: ['基础功能使用', '每日签到奖励', '社区互动'],
-    color: 'bg-blue-100',
-    textColor: 'text-blue-700'
-  },
-  {
-    id: 2,
     name: '黄金会员',
-    description: '进阶会员权益',
-    benefits: ['普通会员所有权益', '专属模板下载', '优先客服支持', '月度礼包'],
+    description: '基础会员权益',
+    benefits: ['基础功能使用', '每日签到奖励', '社区互动', '随意欣赏页面'],
     color: 'bg-amber-100',
     textColor: 'text-amber-700'
   },
   {
-    id: 3,
+    id: 2,
     name: '钻石会员',
+    description: '进阶会员权益',
+    benefits: ['黄金会员权益', '专属模板下载', '优先客服支持', '月度礼包'],
+    color: 'bg-blue-100',
+    textColor: 'text-blue-700'
+  },
+  {
+    id: 3,
+    name: '至尊会员',
     description: '高级会员权益',
-    benefits: ['黄金会员所有权益', '免费预览权限', '定制化服务', '季度大礼包'],
+    benefits: ['钻石会员权益', '免费预览权限', '定制化服务', '季度大礼包'],
     color: 'bg-cyan-100',
     textColor: 'text-cyan-700'
   },
   {
     id: 4,
-    name: '至尊会员',
+    name: '永久会员',
     description: '顶级会员权益',
-    benefits: ['钻石会员所有权益', '专属客服', '内测功能优先体验', '年度豪华礼包'],
+    benefits: ['至尊会员权益', '专属客服', '内测功能优体验', '年度豪华礼包'],
     color: 'bg-purple-100',
     textColor: 'text-purple-700'
   }
