@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hncs.world.mapper.BookMapper">
+
+    <resultMap id="BaseResultMap" type="com.hncs.world.pojo.entity.Book">
+            <id property="bookId" column="book_id" />
+            <result property="bookName" column="book_name" />
+            <result property="bookLink" column="book_link" />
+            <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
+            <result property="updateUser" column="update_user" />
+            <result property="isCollect" column="is_collect" />
+            <result property="token" column="token" />
+            <result property="isDeleted" column="is_deleted" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        book_id,book_name,book_link,create_time,update_time,update_user,
+        is_collect,token,is_deleted
+    </sql>
+</mapper>

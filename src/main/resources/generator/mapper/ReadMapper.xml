@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hncs.world.mapper.ReadMapper">
+
+    <resultMap id="BaseResultMap" type="com.hncs.world.pojo.entity.Read">
+            <id property="token" column="token" />
+            <result property="bookName" column="book_name" />
+            <result property="bookLink" column="book_link" />
+            <result property="chapterLink" column="chapter_link" />
+            <result property="number" column="number" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        token,book_name,book_link,chapter_link,number
+    </sql>
+</mapper>

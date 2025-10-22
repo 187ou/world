@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hncs.world.mapper.LevelMapper">
+
+    <resultMap id="BaseResultMap" type="com.hncs.world.pojo.entity.Level">
+            <id property="level" column="level" />
+            <result property="print" column="print" />
+            <result property="reduce" column="reduce" />
+            <result property="enlarge" column="enlarge" />
+            <result property="font" column="font" />
+            <result property="fontSize" column="font_size" />
+            <result property="bold" column="bold" />
+            <result property="slash" column="slash" />
+            <result property="underline" column="underline" />
+            <result property="strikethrough" column="strikethrough" />
+            <result property="textColor" column="text_color" />
+            <result property="backgroundColor" column="background_color" />
+            <result property="style" column="style" />
+            <result property="lineSpacing" column="line_spacing" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        level,print,reduce,enlarge,font,font_size,
+        bold,slash,underline,strikethrough,text_color,
+        background_color,style,line_spacing
+    </sql>
+</mapper>
