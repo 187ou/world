@@ -107,7 +107,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.eq(User::getUserName, userLoginDto.getUsername())
                 .or()
                 .eq(User::getEmail, userLoginDto.getUsername());
-        User user = getOne(queryWrapper);
+        User user = this.getOne(queryWrapper);
 
         // 2. 业务校验：用户是否存在
         if (user == null) {
@@ -117,13 +117,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 3. 业务校验：密码是否正确（依赖加密算法，属于核心逻辑）
         if (!BCrypt.checkpw(userLoginDto.getPassword(), user.getPassword())) {
             // 记录失败日志（便于风控分析）
-            log.warn("用户登录失败：密码错误，用户名/邮箱={}", userLoginDto.getUsername());
+            log.info("用户登录失败：密码错误，用户名/邮箱={}", userLoginDto.getUsername());
             throw new BusinessException(ErrorCode.LOGIN_PASSWORD_ERROR, "密码错误");
         }
 
         // 4. 业务校验：账号是否被禁用（依赖用户状态，属于业务规则）
         if (user.getStatus() == 0) {
-            log.warn("用户登录失败：账号已禁用，用户ID={}", user.getUserId());
+            log.info("用户登录失败：账号已禁用，用户ID={}", user.getUserId());
             throw new BusinessException(ErrorCode.LOGIN_ACCOUNT_DISABLED, "账号已被禁用");
         }
 
@@ -149,7 +149,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 用户登出
      * @param token 用户登录后携带的token
-     * @param refreshToken
+     * @param refreshToken 用户登录后携带的refreshToken
      */
     @Override
     public void logout(String token, String refreshToken) {
@@ -167,7 +167,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.eq(User::getEmail, email);
         User user = getOne(queryWrapper);
         if (user == null) {
-            log.warn("发送验证码失败：邮箱未注册，邮箱={}", email);
+            log.info("发送验证码失败：邮箱未注册，邮箱={}", email);
             throw new BusinessException(ErrorCode.VERIFY_EMAIL_UNREGISTERED, "邮箱未注册");
         }
 
@@ -179,7 +179,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             emailUtil.sendVerificationCode(email, code);
             log.info("验证码发送成功，邮箱={}", email);
         } catch (Exception e) {
-            log.error("验证码发送失败，邮箱={}", email, e);
+            log.info("验证码发送失败，邮箱={}", email, e);
             throw new BusinessException(ErrorCode.VERIFY_SEND_FAILED, "验证码发送失败，请稍后重试");
         }
     }
@@ -195,7 +195,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         // 1. 业务校验：验证码有效性（依赖验证码工具，核心业务）
         if (!verificationCodeUtil.validateCode(email, resetPasswordDto.getCode())) {
-            log.warn("重置密码失败：验证码无效，邮箱={}", email);
+            log.info("重置密码失败：验证码无效，邮箱={}", email);
             throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码错误或已过期");
         }
 
@@ -204,13 +204,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.eq(User::getEmail, email);
         User user = getOne(queryWrapper);
         if (user == null) {
-            log.warn("重置密码失败：用户不存在，邮箱={}", email);
+            log.info("重置密码失败：用户不存在，邮箱={}", email);
             throw new BusinessException(ErrorCode.RESET_USER_NOT_EXIST, "用户不存在");
         }
 
         // 3. 业务校验：新密码是否与旧密码相同（安全增强，依赖数据库）
         if (BCrypt.checkpw(newPassword, user.getPassword())) {
-            log.warn("重置密码失败：新密码与旧密码相同，用户ID={}", user.getUserId());
+            log.info("重置密码失败：新密码与旧密码相同，用户ID={}", user.getUserId());
             throw new BusinessException(ErrorCode.RESET_PASSWORD_SAME_AS_OLD, "新密码不能与旧密码相同");
         }
 
@@ -219,7 +219,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setUpdateTime(new Date());
         boolean updateSuccess = updateById(user);
         if (!updateSuccess) {
-            log.error("重置密码失败：数据库更新异常，用户ID={}", user.getUserId());
+            log.info("重置密码失败：数据库更新异常，用户ID={}", user.getUserId());
             throw new BusinessException(ErrorCode.RESET_DB_UPDATE_FAIL, "重置密码失败，请稍后重试");
         }
 
@@ -229,14 +229,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 更新用户信息
      * @param userUpdateDto 更新的用户信息
-     * @return
+     * @return 更新后的用户信息
      */
     @Override
     public UserVo updateUserInfo(UserUpdateDto userUpdateDto) {
         // 1. 核心业务校验：用户是否存在（依赖数据库，必须在Service层处理）
         User user = baseMapper.selectById(userUpdateDto.getUserId());
         if (user == null) {
-            log.warn("更新用户信息失败：用户不存在，用户ID={}", userUpdateDto.getUserId());
+            log.info("更新用户信息失败：用户不存在，用户ID={}", userUpdateDto.getUserId());
             throw new BusinessException(ErrorCode.UPDATE_USER_NOT_EXIST, "用户不存在");
         }
 
@@ -248,7 +248,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .ne(User::getUserId, userUpdateDto.getUserId());
             long count = baseMapper.selectCount(queryWrapper);
             if (count > 0) {
-                log.warn("更新用户信息失败：邮箱已被占用，邮箱={}，用户ID={}", userUpdateDto.getEmail(), userUpdateDto.getUserId());
+                log.info("更新用户信息失败：邮箱已被占用，邮箱={}，用户ID={}", userUpdateDto.getEmail(), userUpdateDto.getUserId());
                 throw new BusinessException(ErrorCode.UPDATE_EMAIL_DUPLICATE, "邮箱已被注册");
             }
             user.setEmail(userUpdateDto.getEmail()); // 邮箱不同且唯一，更新
@@ -262,7 +262,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .ne(User::getUserId, userUpdateDto.getUserId());
             long count = baseMapper.selectCount(queryWrapper);
             if (count > 0) {
-                log.warn("更新用户信息失败：手机号已被占用，手机号={}，用户ID={}", userUpdateDto.getPhone(),userUpdateDto.getUserId());
+                log.info("更新用户信息失败：手机号已被占用，手机号={}，用户ID={}", userUpdateDto.getPhone(),userUpdateDto.getUserId());
                 throw new BusinessException(ErrorCode.UPDATE_PHONE_DUPLICATE, "手机号已被注册");
             }
             user.setPhone(userUpdateDto.getPhone()); // 手机号不同且唯一，更新
@@ -281,7 +281,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setUpdateTime(new Date());
         int rows = baseMapper.updateById(user);
         if (rows != 1) {
-            log.error("更新用户信息失败：数据库操作异常，用户ID={}", userUpdateDto.getUserId());
+            log.info("更新用户信息失败：数据库操作异常，用户ID={}", userUpdateDto.getUserId());
             throw new BusinessException(ErrorCode.UPDATE_DB_FAIL, "更新用户信息失败");
         }
 
@@ -303,7 +303,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.eq(User::getEmail, email);
         User user = getOne(queryWrapper);
         if (user != null) {
-            log.warn("注册验证码发送失败：邮箱已注册，邮箱={}", email);
+            log.info("注册验证码发送失败：邮箱已注册，邮箱={}", email);
             throw new BusinessException(ErrorCode.REGISTER_EMAIL_DUPLICATE, "邮箱已注册，无需重复注册");
         }
 
@@ -318,7 +318,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             emailUtil.sendVerificationCode(email, code);
             log.info("注册验证码发送成功，邮箱={}", email);
         } catch (Exception e) {
-            log.error("注册验证码发送失败，邮箱={}", email, e);
+            log.info("注册验证码发送失败，邮箱={}", email, e);
             throw new BusinessException(ErrorCode.VERIFY_SEND_FAILED, "验证码发送失败，请稍后重试");
         }
     }

@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public Result<?> handleBusinessException(BusinessException e) {
         // 日志记录：包含错误码、提示、详情，便于定位问题
-        log.error("业务异常: [{}] 提示={}, 详情={}", e.getErrorCode(), e.getMessage(), e.getDetail(), e);
+        log.info("业务异常: [{}] 提示={}, 详情={}", e.getErrorCode(), e.getMessage(), e.getDetail(), e);
         return Result.error(e); // 调用Result的error(BusinessException)方法
     }
 
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         // 日志记录：参数校验失败属于客户端问题，用warn级别
-        log.warn("DTO参数校验失败: {}", errorMsg);
+        log.info("DTO参数校验失败: {}", errorMsg);
 
         // 调用新增的error(int, String)方法，返回具体错误信息
         return Result.error(ErrorCode.INVALID_PARAMS.getCode(), errorMsg);
@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result<?> handleSystemException(Exception e) {
         // 日志记录：系统异常需详细堆栈，用error级别
-        log.error("系统异常: 异常信息={}", e.getMessage(), e);
+        log.info("系统异常: 异常信息={}", e.getMessage(), e);
 
         // 返回通用系统错误，不暴露敏感信息（如堆栈）
         return Result.error(ErrorCode.SERVER_ERROR);

@@ -46,14 +46,14 @@ public class PythonIntegration {
             // 等待进程结束
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                log.error("Python脚本执行失败，错误码: {}，错误信息: {}", exitCode, errorResult);
+                log.info("Python脚本执行失败，错误码: {}，错误信息: {}", exitCode, errorResult);
                 throw new BusinessException(ErrorCode.PY_PARSE_ERROR);
             }
 
             return result.toString().trim();
 
         } catch (Exception e) {
-            log.error("Python脚本执行失败");
+            log.info("Python脚本执行失败");
             throw new BusinessException(ErrorCode.PY_PARSE_ERROR);
         }
     }

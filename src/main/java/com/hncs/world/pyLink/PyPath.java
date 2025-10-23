@@ -41,7 +41,7 @@ public enum PyPath {
             return extractFromJar(resource);
 
         } catch (Exception e) {
-            log.error("无法加载Python脚本: {}", classPath, e);
+            log.info("无法加载Python脚本: {}", classPath, e);
             throw new BusinessException(ErrorCode.PY_NOT_FOUND);
         }
     }

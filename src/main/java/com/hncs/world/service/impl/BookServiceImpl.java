@@ -50,7 +50,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
             return bookList;
 
         } catch (Exception e) {
-            log.error("搜索书籍失败: {}", e.getMessage(), e);
+            log.info("搜索书籍失败: {}", e.getMessage(), e);
             throw new BusinessException(ErrorCode.PY_EXECUTE_FAILED, "小说搜索失败");
         }
     }
@@ -79,7 +79,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
             return bookPreviewVoList;
 
         } catch (Exception e) {
-            log.error("预览小说失败: {}", e.getMessage(), e);
+            log.info("预览小说失败: {}", e.getMessage(), e);
             throw new BusinessException(ErrorCode.PY_EXECUTE_FAILED, "小说预览失败");
         }
     }
@@ -105,7 +105,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
             return bookOpenVo;
 
         } catch (Exception e) {
-            log.error("打开小说失败: {}", e.getMessage(), e);
+            log.info("打开小说失败: {}", e.getMessage(), e);
             throw new BusinessException(ErrorCode.PY_EXECUTE_FAILED, "小说打开失败");
         }
     }

@@ -36,7 +36,7 @@ public class PythonDataParser<T> {
                     objectMapper.getTypeFactory().constructCollectionType(List.class, clazz));
 
         } catch (Exception e) {
-            log.error("解析Python返回数据失败: {}, 原始数据: {}", e.getMessage(), pythonResult);
+            log.info("解析Python返回数据失败: {}, 原始数据: {}", e.getMessage(), pythonResult);
             throw new BusinessException(ErrorCode.PY_PARSE_ERROR);
         }
 
@@ -59,7 +59,7 @@ public class PythonDataParser<T> {
             return objectMapper.readValue(pythonResult, clazz);
 
         } catch (Exception e) {
-            log.error("解析Python返回的单个对象失败: {}, 原始数据: {}", e.getMessage(), pythonResult);
+            log.info("解析Python返回的单个对象失败: {}, 原始数据: {}", e.getMessage(), pythonResult);
             throw new BusinessException(ErrorCode.PY_PARSE_ERROR);
         }
     }

@@ -93,7 +93,7 @@ public class AuthController {
         // 1. 校验发送频率（防止恶意刷验证码，轻量逻辑适合Controller层）
         boolean canSend = verificationCodeUtil.checkSendFrequency(email);
         if (!canSend) {
-            log.warn("验证码发送过于频繁，邮箱={}", email);
+            log.info("验证码发送过于频繁，邮箱={}", email);
             throw new BusinessException(ErrorCode.VERIFY_FREQUENCY_LIMIT, "验证码发送过于频繁，请60秒后再试");
         }
 
@@ -153,7 +153,7 @@ public class AuthController {
         // 1. 校验发送频率（复用工具类，与其他场景保持一致）
         boolean canSend = verificationCodeUtil.checkSendFrequency(email);
         if (!canSend) {
-            log.warn("注册验证码发送过于频繁，邮箱={}", email);
+            log.info("注册验证码发送过于频繁，邮箱={}", email);
             throw new BusinessException(ErrorCode.VERIFY_FREQUENCY_LIMIT, "验证码发送过于频繁，请60秒后再试");
         }
 
