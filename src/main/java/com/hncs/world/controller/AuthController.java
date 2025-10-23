@@ -1,9 +1,9 @@
 package com.hncs.world.controller;
 
 import com.hncs.world.common.ErrorCode;
-import com.hncs.world.common.utils.EmailUtil;
-import com.hncs.world.common.utils.JwtUtil;
-import com.hncs.world.common.utils.VerificationCodeUtil;
+import com.hncs.world.utils.EmailUtil;
+import com.hncs.world.utils.JwtUtil;
+import com.hncs.world.utils.VerificationCodeUtil;
 import com.hncs.world.common.Result;
 import com.hncs.world.exception.BusinessException;
 import com.hncs.world.pojo.dto.*;

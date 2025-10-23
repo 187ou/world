@@ -1,4 +1,4 @@
-package com.hncs.world.common.utils;
+package com.hncs.world.utils;
 
 import com.hncs.world.common.ErrorCode;
 import com.hncs.world.exception.BusinessException;

@@ -1,4 +1,4 @@
-package com.hncs.world.common.utils;
+package com.hncs.world.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -11,6 +11,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * JWT 工具类
+ */
 @Component
 public class JwtUtil {
     

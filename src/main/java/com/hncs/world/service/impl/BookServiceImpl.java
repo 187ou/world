@@ -29,6 +29,12 @@ import java.util.List;
 public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
     implements BookService{
 
+    /**
+     * 小说搜索
+     *
+     * @param bookName 小说关键词
+     * @return 小说列表
+     */
     @Override
     public List<BookSearchVo> bookSearch(String bookName) {
         try {
@@ -49,6 +55,12 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
         }
     }
 
+    /**
+     * 小说预览
+     *
+     * @param bookLink 小说链接
+     * @return 小说章节列表
+     */
     @Override
     public List<BookPreviewVo> bookPreview(String bookLink) {
         try {
@@ -72,6 +84,12 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
         }
     }
 
+    /**
+     * 小说打开
+     *
+     * @param chapterLink 小说章节链接
+     * @return 小说章节内容
+     */
     @Override
     public BookOpenVo bookOpen(String chapterLink) {
         try {

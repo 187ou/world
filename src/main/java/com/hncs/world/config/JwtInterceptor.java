@@ -1,7 +1,7 @@
 package com.hncs.world.config;
 
 import com.hncs.world.common.ErrorCode;
-import com.hncs.world.common.utils.JwtUtil;
+import com.hncs.world.utils.JwtUtil;
 import com.hncs.world.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -11,6 +11,9 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * JWT拦截器
+ */
 @Component
 public class JwtInterceptor implements HandlerInterceptor {
 

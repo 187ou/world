@@ -1,4 +1,4 @@
-package com.hncs.world.common.utils;
+package com.hncs.world.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 验证码工具类
+ */
 @Component
 public class VerificationCodeUtil {
 
