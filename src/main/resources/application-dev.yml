@@ -1,8 +1,16 @@
 world:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    host: gz-cynosdbmysql-grp-mmnbhid5.sql.tencentcdb.com
-    port: 25653
+
+#    host: gz-cynosdbmysql-grp-mmnbhid5.sql.tencentcdb.com
+#    port: 25653
+#    database: world
+#    username: q3214839534
+#    password: '@q3214839534Q'  # 单引号包裹
+
+    host: localhost
+    port: 3306
     database: world
-    username: q3214839534
-    password: '@q3214839534Q'  # 单引号包裹
+    username: root
+    password: mysql
+

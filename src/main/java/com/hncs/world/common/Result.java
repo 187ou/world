@@ -44,6 +44,7 @@ public class Result<T> implements Serializable {
         result.description = e.getDetail();
         return result;
     }
+
     //    用于DTO参数校验，返回具体字段错误
     public static <T> Result<T> error(int code, String customMsg) {
         Result<T> result = new Result<>();
@@ -52,4 +53,5 @@ public class Result<T> implements Serializable {
         result.description = null;
         return result;
     }
+
 }

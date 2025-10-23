@@ -11,6 +11,7 @@ public enum ErrorCode {
 
     // 客户端错误（4xx开头）
     INVALID_PARAMS(400000, "输入参数错误"),
+
     // 注册相关错误（401xx）
     REGISTER_USERNAME_DUPLICATE(401001, "用户名已存在"),
     REGISTER_EMAIL_DUPLICATE(401002, "邮箱已被注册"),
@@ -25,7 +26,7 @@ public enum ErrorCode {
     VERIFY_EMAIL_FORMAT_ERROR(403002, "邮箱格式不正确，请输入有效的邮箱地址"),
     VERIFY_SEND_FAILED(403003, "验证码发送失败，请稍后重试"),
     VERIFY_CODE_INVALID(403004, "验证码错误或已过期"),
-    VERIFY_FREQUENCY_LIMIT(403005,  "验证码发送过于频繁，请60秒后再试"),
+    VERIFY_FREQUENCY_LIMIT(403005, "验证码发送过于频繁，请60秒后再试"),
     // 密码重置相关错误（404xx）
     RESET_USER_NOT_EXIST(404001, "用户不存在"),
     RESET_PASSWORD_SAME_AS_OLD(404002, "新密码不能与旧密码相同"),
@@ -39,6 +40,7 @@ public enum ErrorCode {
     UPDATE_SEX_INVALID(406004, "性别参数无效"),
     UPDATE_DB_FAIL(406005, "更新用户信息失败"),
     UPDATE_PHONE_DUPLICATE(406006, "手机号已被注册"),
+
 
     // 服务器错误（5xx开头）
     SERVER_ERROR(500000, "系统繁忙，请稍后再试"),
