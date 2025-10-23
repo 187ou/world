@@ -1,12 +1,9 @@
 package com.hncs.world.pojo.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Size;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Pattern;
+
+import javax.validation.constraints.*;
 
 @Data
 public class UserUpdateDto {
@@ -26,4 +23,22 @@ public class UserUpdateDto {
     @Email(message = "邮箱格式不正确")
     @Size(max = 50, message = "邮箱长度不能超过50位") // 可选字段，有值时校验格式和长度
     private String email;        // 可选：邮箱
+
+    @NotBlank(message = "验证码不能为空")
+    @Pattern(regexp = "^\\d{6}$", message = "验证码必须为6位数字")
+    @ApiModelProperty(value = "邮箱换绑验证码（仅修改邮箱时必填，6位数字）", required = false)
+    private String emailVerificationCode; // 新邮箱的验证码
+
+    // 新增：邮箱验证码（仅当email不为空时必填）
+    @AssertTrue(message = "修改邮箱时必须提供6位数字验证码")
+    public boolean isEmailVerificationCodeValid() {
+        if (email == null) {
+            return true;
+        } else {
+            // 同时校验“非空”和“6位数字格式”
+            return emailVerificationCode != null
+                    && !emailVerificationCode.isEmpty()
+                    && emailVerificationCode.matches("^\\d{6}$");
+        }
+    }
 }

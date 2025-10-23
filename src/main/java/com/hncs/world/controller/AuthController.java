@@ -1,6 +1,8 @@
 package com.hncs.world.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.hncs.world.common.ErrorCode;
+import com.hncs.world.pojo.entity.User;
 import com.hncs.world.utils.EmailUtil;
 import com.hncs.world.utils.JwtUtil;
 import com.hncs.world.utils.VerificationCodeUtil;
@@ -46,7 +48,7 @@ public class AuthController {
         // 2. 验证码有效性校验（依赖外部工具，非Service层核心业务）
         boolean isCodeValid = verificationCodeUtil.validateCode(userRegisterDto.getEmail(), userRegisterDto.getCode());
         if (!isCodeValid) {
-            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码错误或已过期");
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "验证码错误或已过期");
         }
 
         // 3. 调用Service处理核心注册业务
@@ -62,7 +64,7 @@ public class AuthController {
         if (userLoginDto.getUsername().matches(emailRegex)) {
             // 邮箱登录时，校验邮箱格式（增强版，比DTO的长度校验更精确）
             if (userLoginDto.getUsername().length() > 50) { // 邮箱最长一般不超过50位
-                throw new BusinessException(ErrorCode.LOGIN_EMAIL_FORMAT_ERROR, "邮箱格式过长");
+                throw new BusinessException(ErrorCode.INVALID_PARAMS, "邮箱格式过长");
             }
         } else {
             // 用户名登录时，补充特殊字符校验（假设用户名只能包含字母、数字、下划线）
@@ -86,7 +88,7 @@ public class AuthController {
     }
 
     @PostMapping("/send-verification-code")
-    @ApiOperation("发送验证码")
+    @ApiOperation("发送重置密码验证码")
     public Result<SendCodeVo> sendVerificationCode(@Valid @RequestBody SendCodeDto sendCodeDto) {
         String email = sendCodeDto.getEmail();
 
@@ -94,7 +96,7 @@ public class AuthController {
         boolean canSend = verificationCodeUtil.checkSendFrequency(email);
         if (!canSend) {
             log.info("验证码发送过于频繁，邮箱={}", email);
-            throw new BusinessException(ErrorCode.VERIFY_FREQUENCY_LIMIT, "验证码发送过于频繁，请60秒后再试");
+            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码发送过于频繁，请60秒后再试");
         }
 
         // 2. 调用Service处理核心业务（依赖数据库的校验和发送逻辑）
@@ -154,7 +156,7 @@ public class AuthController {
         boolean canSend = verificationCodeUtil.checkSendFrequency(email);
         if (!canSend) {
             log.info("注册验证码发送过于频繁，邮箱={}", email);
-            throw new BusinessException(ErrorCode.VERIFY_FREQUENCY_LIMIT, "验证码发送过于频繁，请60秒后再试");
+            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码发送过于频繁，请60秒后再试");
         }
 
         // 2. 调用注册专用的发送验证码方法（允许向未注册邮箱发送）
@@ -165,5 +167,52 @@ public class AuthController {
         sendCodeVo.setEmail(email);
         sendCodeVo.setExpiresIn(300); // 5分钟有效期
         return Result.success(sendCodeVo);
+    }
+
+    @PostMapping("/send-email-bind-code")
+    @ApiOperation("发送邮箱换绑验证码")
+    public Result<SendCodeVo> sendEmailBindCode(@Valid @RequestBody EmailBindCodeDto emailBindCodeDto) {
+        String newEmail = emailBindCodeDto.getNewEmail();
+        Long userId = emailBindCodeDto.getUserId();
+        log.info("接收邮箱换绑验证码请求，用户ID={}，新邮箱={}", userId, newEmail);
+
+        // 1. 校验用户是否存在
+        User user = userService.getById(userId);
+        if (user == null) {
+            log.info("邮箱换绑验证码发送失败：用户不存在，用户ID={}", userId);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "用户不存在");
+        }
+
+        // 2. 校验新邮箱是否已被其他用户注册
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getEmail, newEmail)
+                .ne(User::getUserId, userId);
+        if (userService.count(queryWrapper) > 0) {
+            log.info("邮箱换绑验证码发送失败：新邮箱已被注册，邮箱={}，用户ID={}", newEmail, userId);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "该邮箱已被其他账号注册，无法换绑");
+        }
+
+        // 3. 校验发送频率
+        String cacheKey = "email_bind:" + newEmail + ":" + userId;
+        if (!verificationCodeUtil.checkSendFrequency(cacheKey)) {
+            log.info("邮箱换绑验证码发送失败：频率超限，邮箱={}，用户ID={}", newEmail, userId);
+            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码发送过于频繁，请60秒后再试");
+        }
+
+        // 4. 生成并发送验证码
+        String code = verificationCodeUtil.generateCode(cacheKey);
+        try {
+            emailUtil.sendVerificationCode(newEmail, "您正在换绑邮箱，验证码为：" + code + "，5分钟内有效");
+            log.info("邮箱换绑验证码发送成功，用户ID={}，新邮箱={}", userId, newEmail);
+        } catch (Exception e) {
+            log.info("邮箱换绑验证码发送失败，用户ID={}，新邮箱={}", userId, newEmail, e);
+            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码发送失败，请检查邮箱有效性");
+        }
+
+        // 5. 构建返回结果
+        SendCodeVo vo = new SendCodeVo();
+        vo.setEmail(newEmail);
+        vo.setExpiresIn(300);
+        return Result.success(vo);
     }
 }
