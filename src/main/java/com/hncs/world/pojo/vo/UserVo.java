@@ -3,7 +3,9 @@ package com.hncs.world.pojo.vo;
 import lombok.Data;
 
 import java.util.Date;
-
+/**
+ * 用户信息返回类
+ */
 @Data
 public class UserVo {
     private Long userId;

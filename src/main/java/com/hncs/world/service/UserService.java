@@ -21,54 +21,48 @@ import com.hncs.world.pojo.vo.UserVo;
 public interface UserService extends IService<User> {
     /**
      * 用户注册
-     * @param dto 注册信息
+     * @param userRegisterDto 注册信息
      * @return
      */
-    RegisterVo register(UserRegisterDto dto);
+    RegisterVo register(UserRegisterDto userRegisterDto);
 
     /**
      * 用户登录
-     * @param dto 登录信息
+     * @param userLoginDto 登录信息
      * @return
      */
-    LoginVo login(UserLoginDto dto);
+    LoginVo login(UserLoginDto userLoginDto);
 
     /**
      * 用户登出
-     * @param token
+     * @param token 用户登录后携带的token
      * @param refreshToken
      */
     void logout(String token, String refreshToken);
 
     /**
      * 发送验证码
-     * @param email
+     * @param email 用户邮箱
      */
     void sendVerificationCode(String email);
 
     /**
      * 重置密码
-     * @param dto
+     * @param resetPasswordDto 重置密码信息
      */
-    void resetPassword(ResetPasswordDto dto);
+    void resetPassword(ResetPasswordDto resetPasswordDto);
 
-    /**
-     * 获取用户信息
-     * @param userId
-     * @return
-     */
-    UserVo getUserVoById(Long userId);
 
     /**
      * 更新用户信息
-     * @param dto
+     * @param userUpdateDto 更新的用户信息
      * @return
      */
-    UserVo updateUserInfo(UserUpdateDto dto);
+    UserVo updateUserInfo(UserUpdateDto userUpdateDto);
 
     /**
      * 发送注册验证码
-     * @param email
+     * @param email 用户邮箱
      */
     void sendRegisterCode(String email);
 }
