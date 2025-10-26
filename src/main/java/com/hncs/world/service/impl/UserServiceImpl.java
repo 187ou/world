@@ -2,16 +2,14 @@ package com.hncs.world.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hncs.world.common.ErrorCode;
+import com.hncs.world.pojo.dto.*;
 import com.hncs.world.utils.EmailUtil;
 import com.hncs.world.utils.JwtUtil;
 import com.hncs.world.utils.VerificationCodeUtil;
 import com.hncs.world.exception.BusinessException;
-import com.hncs.world.pojo.dto.ResetPasswordDto;
-import com.hncs.world.pojo.dto.UserLoginDto;
-import com.hncs.world.pojo.dto.UserRegisterDto;
-import com.hncs.world.pojo.dto.UserUpdateDto;
 import com.hncs.world.pojo.entity.User;
 import com.hncs.world.pojo.vo.LoginVo;
 import com.hncs.world.pojo.vo.RegisterVo;
@@ -65,14 +63,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.INVALID_PARAMS, "邮箱已被注册");
         }
 
-        // 3. 手机号唯一性校验（若有手机号则校验，依赖数据库）
-        if (userRegisterDto.getPhone() != null && !userRegisterDto.getPhone().isEmpty()) {
-            queryWrapper.clear();
-            queryWrapper.eq(User::getPhone, userRegisterDto.getPhone());
-            if (count(queryWrapper) > 0) {
-                throw new BusinessException(ErrorCode.INVALID_PARAMS, "手机号已被注册");
-            }
-        }
+//        // 3. 手机号唯一性校验（若有手机号则校验，依赖数据库）
+//        if (userRegisterDto.getPhone() != null && !userRegisterDto.getPhone().isEmpty()) {
+//            queryWrapper.clear();
+//            queryWrapper.eq(User::getPhone, userRegisterDto.getPhone());
+//            if (count(queryWrapper) > 0) {
+//                throw new BusinessException(ErrorCode.INVALID_PARAMS, "手机号已被注册");
+//            }
+//        }
 
         // 4. 创建用户（敏感字段处理）
         User user = new User();
@@ -139,7 +137,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         tokenVo.setAccessToken(token);
         tokenVo.setExpiresIn(900); // 15分钟有效期
         loginVo.setTokens(tokenVo);
-
+        log.info("登录成功，生成Token：{}", token); // 关键：打印完整Token
         // 记录登录成功日志
         log.info("用户登录成功，用户ID={}", user.getUserId());
         return loginVo;
@@ -148,10 +146,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 用户登出
      * @param token 用户登录后携带的token
-     * @param refreshToken 用户登录后携带的refreshToken
      */
     @Override
-    public void logout(String token, String refreshToken) {
+    public void logout(String token) {
         log.info("用户退出登录，token: {}", token);
     }
 
@@ -231,62 +228,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return 更新后的用户信息
      */
     @Override
-    public UserVo updateUserInfo(UserUpdateDto userUpdateDto) {
+    public UserVo updateUserInfo(Long userId,UserUpdateDto userUpdateDto) {
         // 1. 校验用户是否存在（原有逻辑）
-        User user = baseMapper.selectById(userUpdateDto.getUserId());
+        User user = baseMapper.selectById(userId);
         if (user == null) {
-            log.info("更新用户信息失败：用户不存在，用户ID={}", userUpdateDto.getUserId());
+            log.info("更新用户信息失败：用户不存在，用户ID={}", userId);
             throw new BusinessException(ErrorCode.INVALID_PARAMS, "用户不存在");
         }
-        // 2. 邮箱更新逻辑（新增验证码校验）
-        if (userUpdateDto.getEmail() != null && !userUpdateDto.getEmail().equals(user.getEmail())) {
 
-            // 2.1 校验邮箱验证码（核心新增步骤）
-            String newEmail = userUpdateDto.getEmail();
-            Long userId = userUpdateDto.getUserId();
-            String emailCode = userUpdateDto.getEmailVerificationCode(); // 从DTO获取验证码
 
-            // 校验验证码是否为空（DTO层已通过@AssertTrue确保，此处可作为双重保障）
-            if (emailCode == null || emailCode.trim().isEmpty()) {
-                throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "请输入邮箱验证码");
-            }
-
-            // 校验验证码有效性（缓存key与发送时一致："email_bind:新邮箱:用户ID"）
-            String cacheKey = "email_bind:" + newEmail + ":" + userId;
-            boolean isCodeValid = verificationCodeUtil.validateCode(cacheKey, emailCode);
-            if (!isCodeValid) {
-                log.info("更新用户信息失败：邮箱验证码无效，邮箱={}，用户ID={}", newEmail, userId);
-                throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "邮箱验证码错误或已过期");
-            }
-
-            // 2.2 校验邮箱唯一性（原有逻辑保留，防止并发场景下被注册）
-            LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(User::getEmail, newEmail)
-                    .ne(User::getUserId, userId);
-            long count = baseMapper.selectCount(queryWrapper);
-            if (count > 0) {
-                log.info("更新用户信息失败：邮箱已被占用，邮箱={}，用户ID={}", newEmail, userId);
-                throw new BusinessException(ErrorCode.INVALID_PARAMS, "邮箱已被注册");
-            }
-
-            // 2.3 验证通过，更新邮箱
-            user.setEmail(newEmail);
-        }
-
-        // 3. 手机号更新逻辑（原有逻辑不变）
+        // 2. 手机号更新逻辑（原有逻辑不变）
         if (userUpdateDto.getPhone() != null && !userUpdateDto.getPhone().equals(user.getPhone())) {
             LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(User::getPhone, userUpdateDto.getPhone())
-                    .ne(User::getUserId, userUpdateDto.getUserId());
+                    .ne(User::getUserId, userId);
             long count = baseMapper.selectCount(queryWrapper);
             if (count > 0) {
-                log.info("更新用户信息失败：手机号已被占用，手机号={}，用户ID={}", userUpdateDto.getPhone(), userUpdateDto.getUserId());
+                log.info("更新用户信息失败：手机号已被占用，手机号={}，用户ID={}", userUpdateDto.getPhone(), userId);
                 throw new BusinessException(ErrorCode.INVALID_PARAMS, "手机号已被注册");
             }
             user.setPhone(userUpdateDto.getPhone());
         }
 
-        // 4. 其他字段更新（原有逻辑不变）
+        // 3. 其他字段更新（原有逻辑不变）
         if (userUpdateDto.getNickName() != null) {
             user.setNickName(userUpdateDto.getNickName());
         }
@@ -294,18 +258,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             user.setSex(userUpdateDto.getSex());
         }
 
-        // 5. 执行更新（原有逻辑不变）
+        // 4. 执行更新（原有逻辑不变）
         user.setUpdateTime(new Date());
         int rows = baseMapper.updateById(user);
         if (rows != 1) {
-            log.info("更新用户信息失败：数据库操作异常，用户ID={}", userUpdateDto.getUserId());
+            log.info("更新用户信息失败：数据库操作异常，用户ID={}", userId);
             throw new BusinessException(ErrorCode.UPDATE_DB_FAIL, "更新用户信息失败");
         }
 
-        // 6. 转换VO返回（原有逻辑不变）
+        // 5. 转换VO返回（原有逻辑不变）
         UserVo userVo = new UserVo();
         BeanUtils.copyProperties(user, userVo);
-        log.info("更新用户信息成功，用户ID={}", userUpdateDto.getUserId());
+        log.info("更新用户信息成功，用户ID={}", userId);
         return userVo;
     }
 
@@ -339,5 +303,81 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码发送失败，请稍后重试");
         }
     }
+    /**
+     * 获取用户信息
+     * @param userId 用户ID
+     */
+    @Override
+    public UserVo getUserInfoById(Long userId) {
+        // 1. 通过主键userId查询用户（简化逻辑）
+        User user = this.getById(userId);
+
+        // 2. 业务校验：用户是否存在
+        if (user == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND, "用户不存在");
+        }
+
+        // 3. 转换User为UserVo
+        UserVo userVo = new UserVo();
+        BeanUtils.copyProperties(user, userVo);
+
+        log.info("用户信息获取成功，用户ID={}", user.getUserId());
+        return userVo;
+    }
+
+    @Override
+    public void updateEmail(Long userId, UpdateEmailDto updateEmailDto) {
+        // 1. 获取参数
+        String newEmail = updateEmailDto.getNewEmail();
+        String emailCode = updateEmailDto.getVerificationCode();
+
+        // 2. 校验用户是否存在（核心前置条件）
+        User user = baseMapper.selectById(userId);
+        if (user == null) {
+            log.info("更新邮箱失败：用户不存在，用户ID={}", userId);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "用户不存在");
+        }
+
+        // 3. 校验新邮箱与当前邮箱是否一致（避免无意义更新）
+        if (newEmail.equals(user.getEmail())) {
+            log.info("更新邮箱失败：新邮箱与当前邮箱一致，用户ID={}，邮箱={}", userId, newEmail);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "新邮箱与当前绑定邮箱一致，无需更新");
+        }
+
+        // 4. 校验验证码是否有效（核心安全校验）
+        if (emailCode == null || emailCode.trim().isEmpty()) {
+            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "请输入邮箱验证码");
+        }
+        String cacheKey = "email_bind:" + newEmail + ":" + userId; // 与发送验证码时的key严格一致
+        boolean isCodeValid = verificationCodeUtil.validateCode(cacheKey, emailCode);
+        if (!isCodeValid) {
+            log.info("更新邮箱失败：验证码无效，用户ID={}，邮箱={}", userId, newEmail);
+            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "邮箱验证码错误或已过期");
+        }
+
+        // 5. 校验新邮箱唯一性（防并发注册，与发送验证码时逻辑对齐）
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getEmail, newEmail)
+                .ne(User::getUserId, userId); // 排除当前用户
+        long count = baseMapper.selectCount(queryWrapper);
+        if (count > 0) {
+            log.info("更新邮箱失败：邮箱已被注册，用户ID={}，邮箱={}", userId, newEmail);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "该邮箱已被其他账号注册，无法更新");
+        }
+
+        // 6. 执行邮箱更新
+        user.setEmail(newEmail);
+        user.setUpdateTime(new Date()); // 更新时间戳
+        int rows = baseMapper.updateById(user);
+        if (rows != 1) {
+            log.info("更新邮箱失败：数据库操作异常，用户ID={}", userId);
+            throw new BusinessException(ErrorCode.UPDATE_DB_FAIL, "邮箱更新失败，请重试");
+        }
+
+        // 7. 清除验证码（防止重复使用，关键步骤）
+        verificationCodeUtil.clearCode(cacheKey);
+        log.info("更新邮箱成功，用户ID={}，旧邮箱={}，新邮箱={}", userId, user.getEmail(), newEmail);
+    }
+
 }
 

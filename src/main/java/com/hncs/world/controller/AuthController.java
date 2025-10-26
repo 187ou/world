@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -80,10 +81,18 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    @ApiOperation("退出登录")
-    public Result<Void> logout(@RequestHeader("Authorization") String token,
-                              @Valid @RequestBody LogoutDto logoutDto) {
-        userService.logout(token, logoutDto.getRefreshToken());
+    @ApiOperation("用户登出")
+    public Result<Void> logout(HttpServletRequest request) {
+        // 1. 从请求头提取 accessToken（去掉 Bearer 前缀）
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "登出失败，Token 格式错误");
+        }
+        String accessToken = authorizationHeader.substring(7); // 截取 Bearer 后的 Token
+
+        // 2. 调用 Service 层登出逻辑（如果有 refreshToken，同理从请求头提取）
+        userService.logout(accessToken);
+
         return Result.success();
     }
 
@@ -127,10 +136,12 @@ public class AuthController {
         return Result.success();
     }
 
-    @PutMapping("/info")
-    @ApiOperation("更新用户信息")
-    public Result<UserVo> updateUserInfo(@Valid @RequestBody UserUpdateDto userUpdateDto) {
+    @PutMapping("/update-info")
+    @ApiOperation("更新用户基础信息")
+    public Result<UserVo> updateUserInfo( HttpServletRequest request, @Valid @RequestBody UserUpdateDto userUpdateDto) {
         log.info("接收到用户信息更新请求，参数：{}", userUpdateDto);
+        // 从请求域获取userId（拦截器已校验过Token，确保是当前登录用户）
+        Long userId = (Long) request.getAttribute("userId");
 
         // 1. 校验：如果更新昵称，不允许包含特殊字符（轻量逻辑，适合Controller）
         if (userUpdateDto.getNickName() != null && !userUpdateDto.getNickName().matches("^[a-zA-Z0-9\\u4e00-\\u9fa5]+$")) {
@@ -143,7 +154,7 @@ public class AuthController {
         }
 
         // 3. 调用Service处理核心业务（依赖数据库的校验和更新）
-        UserVo updatedUser = userService.updateUserInfo(userUpdateDto);
+        UserVo updatedUser = userService.updateUserInfo(userId,userUpdateDto);
         return Result.success(updatedUser);
     }
 
@@ -171,9 +182,9 @@ public class AuthController {
 
     @PostMapping("/send-email-bind-code")
     @ApiOperation("发送邮箱换绑验证码")
-    public Result<SendCodeVo> sendEmailBindCode(@Valid @RequestBody EmailBindCodeDto emailBindCodeDto) {
+    public Result<SendCodeVo> sendEmailBindCode(HttpServletRequest request,@Valid @RequestBody EmailBindCodeDto emailBindCodeDto) {
         String newEmail = emailBindCodeDto.getNewEmail();
-        Long userId = emailBindCodeDto.getUserId();
+        Long userId = (Long) request.getAttribute("userId");
         log.info("接收邮箱换绑验证码请求，用户ID={}，新邮箱={}", userId, newEmail);
 
         // 1. 校验用户是否存在
@@ -183,7 +194,13 @@ public class AuthController {
             throw new BusinessException(ErrorCode.INVALID_PARAMS, "用户不存在");
         }
 
-        // 2. 校验新邮箱是否已被其他用户注册
+        // 2.新增：校验新邮箱是否与当前邮箱一致
+        if (newEmail.equals(user.getEmail())) {
+            log.info("邮箱换绑验证码发送失败：新邮箱与当前邮箱一致，用户ID={}，邮箱={}", userId, newEmail);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "新邮箱与当前绑定邮箱一致，无需换绑");
+        }
+
+        // 3. 校验新邮箱是否已被其他用户注册
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getEmail, newEmail)
                 .ne(User::getUserId, userId);
@@ -192,14 +209,14 @@ public class AuthController {
             throw new BusinessException(ErrorCode.INVALID_PARAMS, "该邮箱已被其他账号注册，无法换绑");
         }
 
-        // 3. 校验发送频率
+        // 4. 校验发送频率
         String cacheKey = "email_bind:" + newEmail + ":" + userId;
         if (!verificationCodeUtil.checkSendFrequency(cacheKey)) {
             log.info("邮箱换绑验证码发送失败：频率超限，邮箱={}，用户ID={}", newEmail, userId);
             throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码发送过于频繁，请60秒后再试");
         }
 
-        // 4. 生成并发送验证码
+        // 5. 生成并发送验证码
         String code = verificationCodeUtil.generateCode(cacheKey);
         try {
             emailUtil.sendVerificationCode(newEmail, "您正在换绑邮箱，验证码为：" + code + "，5分钟内有效");
@@ -209,10 +226,33 @@ public class AuthController {
             throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码发送失败，请检查邮箱有效性");
         }
 
-        // 5. 构建返回结果
+        // 6. 构建返回结果
         SendCodeVo vo = new SendCodeVo();
         vo.setEmail(newEmail);
         vo.setExpiresIn(300);
         return Result.success(vo);
+    }
+
+    @PutMapping("/update-email")
+    @ApiOperation("更新用户邮箱")
+    public Result<Void> updateUserEmail( HttpServletRequest request,@Valid @RequestBody UpdateEmailDto updateEmailDto) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        userService.updateEmail(userId,updateEmailDto);
+
+        return Result.success();
+    }
+
+    @GetMapping("/info")
+    @ApiOperation("获取当前登录用户的信息")
+    public Result<UserVo> getUserInfo(HttpServletRequest request) {
+        // 1. 从拦截器传递的request中获取当前登录用户的ID（无需前端传参）
+        Long loginUserId = (Long) request.getAttribute("userId");
+        log.info("接收到获取当前登录用户信息的请求，用户ID：{}", loginUserId);
+
+        // 2. 调用Service查询当前用户信息
+        UserVo userVo = userService.getUserInfoById(loginUserId);
+
+        return Result.success(userVo);
     }
 }

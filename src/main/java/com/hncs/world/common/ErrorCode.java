@@ -11,14 +11,16 @@ public enum ErrorCode {
 
     // 客户端错误（4xx开头）
     INVALID_PARAMS(400000, "输入参数错误"),
+    //用户信息错误
+    USER_NOT_FOUND(401001,"用户不存在"),
     //账号相关错误
     LOGIN_ACCOUNT_DISABLED(402001, "账号错误"),
     // 验证码相关错误（403xx）
     VERIFY_CODE_INVALID(403001, "验证错误"),
     // 密码重置相关错误（404xx）
-    RESET_DB_UPDATE_FAIL(404003, "重置密码失败，请稍后重试"),
+    RESET_DB_UPDATE_FAIL(404001, "重置密码失败，请稍后重试"),
     // 用户更新相关错误（406xx）
-    UPDATE_DB_FAIL(406005, "更新用户信息失败"),
+    UPDATE_DB_FAIL(406001, "更新用户信息失败"),
 
     // 服务器错误（5xx开头）
     SERVER_ERROR(500000, "系统繁忙，请稍后再试"),
