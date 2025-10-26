@@ -3,6 +3,7 @@
     <a-form-item label="用户名">
       <a-input
         v-model:value="userInfo.username"
+        disabled
         @blur="validateUsername"
       />
       <div v-if="errors.username" class="text-red-500 text-sm">{{ errors.username }}</div>
@@ -15,25 +16,17 @@
     <a-form-item label="邮箱">
       <a-input
         v-model:value="userInfo.email"
-        @blur="validateEmail"
+        disabled
       />
       <div v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</div>
     </a-form-item>
 
     <a-form-item label="性别">
       <a-select v-model:value="userInfo.gender" placeholder="请选择性别">
-        <a-select-option value="male">男</a-select-option>
-        <a-select-option value="female">女</a-select-option>
-        <a-select-option value="other">其他</a-select-option>
+        <a-select-option value="0">其他</a-select-option>
+        <a-select-option value="1">男</a-select-option>
+        <a-select-option value="2">女</a-select-option>
       </a-select>
-    </a-form-item>
-
-    <a-form-item label="生日">
-      <a-date-picker
-        v-model:value="userInfo.birthday"
-        style="width: 100%"
-        placeholder="请选择生日"
-      />
     </a-form-item>
 
     <a-form-item label="手机号">
@@ -44,22 +37,23 @@
       <div v-if="errors.phone" class="text-red-500 text-sm">{{ errors.phone }}</div>
     </a-form-item>
 
-    <a-form-item label="个人简介">
+    <a-form-item label="个人留言">
       <a-textarea
         v-model:value="userInfo.bio"
         :rows="4"
-        placeholder="请输入个人简介"
+        placeholder="随便写点什么吧...反正下次再来不会更新"
       />
     </a-form-item>
 
     <a-form-item :wrapper-col="{ offset: 4, span: 16 }" style="text-align: center;">
-      <a-button type="primary" @click="updateUserInfo">保存</a-button>
+      <a-button type="primary" @click="updateUserInfo" style="margin-right: 16px;">保存</a-button>
+      <a-button @click="handleLogout">退出登录</a-button>
     </a-form-item>
   </a-form>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import {
   Form as AForm,
   FormItem as AFormItem,
@@ -67,22 +61,24 @@ import {
   Button as AButton,
   Select as ASelect,
   SelectOption as ASelectOption,
-  DatePicker as ADatePicker,
   Textarea as ATextarea,
   message
 } from 'ant-design-vue'
-import dayjs from 'dayjs'
 import { formFilters } from '@/filters/formFilters.ts'
+import { useUserStore } from '@/stores/user.ts'
+import { getCurrentUserInfo, updateUserInfo as updateUserInfoApi } from '@/apis/api.ts'
+import type { UserUpdateDto } from '@/types/userUpdateDto.ts'
+import { useRouter } from 'vue-router'
 
+const userStore = useUserStore()
+const router = useRouter()
 const userInfo = ref({
   username: 'User',
   nickname: 'Nickname',
   email: 'user@example.com',
-  password: 'man123',
-  gender: 'male',
-  birthday: dayjs('1990-01-01'),
+  gender: '0',
   phone: '13800138000',
-  bio: 'Man',
+  bio: '',
 })
 
 const errors = reactive({
@@ -97,31 +93,78 @@ const validateUsername = () => {
   return result.isValid
 }
 
-const validateEmail = () => {
-  const result = formFilters.validateEmail(userInfo.value.email)
-  errors.email = result.message
-  return result.isValid
-}
-
 const validatePhone = () => {
   const result = formFilters.validatePhone(userInfo.value.phone)
   errors.phone = result.message
   return result.isValid
 }
 
-const updateUserInfo = () => {
-  // 验证所有必填字段
+const updateUserInfo = async () => {
   const isUsernameValid = validateUsername()
-  const isEmailValid = validateEmail()
   const isPhoneValid = validatePhone()
 
-  if (!isUsernameValid || !isEmailValid || !isPhoneValid) {
+  if (!isUsernameValid || !isPhoneValid) {
     message.error('请检查表单填写内容')
     return
   }
 
-  alert('更新用户信息成功')
-  console.log('更新用户信息', userInfo.value)
+  try {
+    const updateData: UserUpdateDto = {
+      nickName: userInfo.value.nickname,
+      phone: userInfo.value.phone,
+      sex: parseInt(userInfo.value.gender),
+    }
+
+    const response = await updateUserInfoApi(updateData)
+
+    if (response?.data) {
+      message.success('用户信息更新成功')
+      await fetchCurrentUserInfo()
+    } else {
+      message.error('更新失败')
+    }
+  } catch (error) {
+    console.error('更新用户信息失败:', error)
+    message.error('更新用户信息时发生错误')
+  }
 }
+
+const fetchCurrentUserInfo = async () => {
+  try {
+    const response = await getCurrentUserInfo()
+    if (response?.data) {
+      userInfo.value = {
+        username: response.data.userName || '',
+        nickname: response.data.nickName || '',
+        email: response.data.email || '',
+        gender: response.data.sex?.toString() || '0',
+        phone: response.data.phone || '',
+        bio: '',
+      }
+      message.success('获取用户信息成功')
+    } else {
+      message.error('获取用户信息失败')
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+    message.error('获取用户信息时发生错误')
+  }
+}
+
+const handleLogout = async () => {
+  try {
+    await userStore.logout()
+    message.success('已退出登录')
+  } catch (error) {
+    console.error('退出登录失败:', error)
+  } finally {
+    await router.push('/login')
+  }
+}
+
+
+onMounted(() => {
+  fetchCurrentUserInfo()
+})
 </script>
 

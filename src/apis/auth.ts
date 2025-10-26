@@ -4,23 +4,28 @@ export interface UserInfo {
   id: number
   name: string
   email: string
+  level: number
+  money: number
+  nickname: string
+  sex: number
+  phone: string
 }
 
 export interface LoginPayload {
-  email: string
+  username: string
   password: string
 }
 
-export interface LoginResponse {
-  token: string
+export interface LogoutPayload {
+  refreshToken: string
 }
 
 // 登录接口
 export async function login(payload: LoginPayload) {
-  return http.post<{ token: string }>('/auth/login', payload)
+  return http.post('/api/auth/login', payload)
 }
 
-// 获取用户信息接口
-export async function fetchUserInfo() {
-  return http.get<UserInfo>('/auth/me')
+// 退出登录接口
+export async function logout(payload: LogoutPayload) {
+  return http.post('/api/auth/logout', payload)
 }

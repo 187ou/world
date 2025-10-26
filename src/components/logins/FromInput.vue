@@ -19,7 +19,7 @@
         {{ passwordVisible ? '🙈' : '🐵' }}
       </button>
     </div>
-    <div v-else-if="type === 'captcha'" class="flex items-center gap-3">
+    <div v-else-if="type === 'captcha' || 'email'" class="flex items-center gap-3">
       <input
         :value="modelValue"
         @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"

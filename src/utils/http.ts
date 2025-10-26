@@ -1,6 +1,6 @@
 import axios from 'axios'
-import type { AxiosInstance, AxiosResponse } from 'axios'
-// import { useUserStore } from '@/stores/user.ts'
+import type { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import { useUserStore } from '@/stores/user'
 
 const http: AxiosInstance = axios.create({
   baseURL: 'http://localhost:8080',
@@ -10,18 +10,30 @@ const http: AxiosInstance = axios.create({
   }
 })
 
+const NO_TOKEN_PATHS = [
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/send-register-code',
+  '/api/auth/send-verification-code',
+  '/api/auth/reset-password'
+]
+
 // 请求拦截器
 http.interceptors.request.use(
-  // (config) => {
-  //   const userStore = useUserStore()
-  //   if (userStore.token && config.headers) {
-  //     config.headers.Authorization = `Bearer ${userStore.token}`
-  //   }
-  //   return config
-  // },
-  // (error) => {
-  //   return Promise.reject(error)
-  // }
+  (config: InternalAxiosRequestConfig) => {
+    const requiresToken = !NO_TOKEN_PATHS.some(path => config.url?.includes(path))
+
+    if (requiresToken) {
+      const userStore = useUserStore()
+      if (userStore.token && config.headers) {
+        config.headers.Authorization = `Bearer ${userStore.token}`
+      }
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
 )
 
 // 响应拦截器

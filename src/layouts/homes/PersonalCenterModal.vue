@@ -14,7 +14,10 @@
         <a-tab-pane key="2" tab="修改密码">
           <PasswordForm />
         </a-tab-pane>
-        <a-tab-pane key="3" tab="会员中心">
+        <a-tab-pane key="3" tab="修改邮箱">
+          <EmailForm />
+        </a-tab-pane>
+        <a-tab-pane key="4" tab="会员中心">
           <MembershipCenter />
         </a-tab-pane>
       </a-tabs>
@@ -28,6 +31,7 @@ import { Modal as AModal, Tabs as ATabs, TabPane as ATabPane } from 'ant-design-
 import UserInfoForm from '@/components/home/UserInfoForm.vue'
 import PasswordForm from '@/components/home/PasswordForm.vue'
 import MembershipCenter from '@/components/home/MembershipCenter.vue'
+import EmailForm from '@/components/home/EmailForm.vue'
 
 const props = defineProps<{
   isVisible: boolean

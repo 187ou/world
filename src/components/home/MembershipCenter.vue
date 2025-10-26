@@ -93,6 +93,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useUserStore } from '@/stores/user.ts'
 
 interface MembershipLevel {
   id: number
@@ -103,8 +104,11 @@ interface MembershipLevel {
   textColor: string
 }
 
+const useStore = useUserStore()
 const currentLevel = ref<number>(1)
 const currentPoints = ref<number>(68)
+currentLevel.value = useStore.user?.level || 1
+currentPoints.value = (useStore.user?.money === 0) ? 0 : 520
 
 const membershipLevels: MembershipLevel[] = [
   {

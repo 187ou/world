@@ -20,6 +20,8 @@
       <div v-if="errors.confirmPassword" class="text-red-500 text-sm">{{ errors.confirmPassword }}</div>
     </a-form-item>
 
+
+
     <a-form-item label="密码强度">
       <div class="password-strength">
         <a-progress
@@ -31,24 +33,47 @@
       </div>
     </a-form-item>
 
+<!--    <a-form-item label="邮箱">-->
+<!--      <a-input-->
+<!--        v-model:value="passwordForm.email"-->
+<!--        placeholder="请输入邮箱地址"-->
+<!--        @blur="validateEmail"-->
+<!--      />-->
+<!--      <div v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</div>-->
+<!--    </a-form-item>-->
+
+<!--    <a-form-item label="验证码">-->
+<!--      <div class="flex items-center gap-3">-->
+<!--        <a-input-->
+<!--          v-model:value="passwordForm.captchaInput"-->
+<!--          placeholder="输入验证码"-->
+<!--          :maxlength="4"-->
+<!--        />-->
+<!--        <CaptchaCanvas ref="captcha" />-->
+<!--      </div>-->
+<!--    </a-form-item>-->
+
     <a-form-item label="邮箱">
-      <a-input
-        v-model:value="passwordForm.email"
-        placeholder="请输入邮箱地址"
-        @blur="validateEmail"
-      />
-      <div v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</div>
+      <FormInput
+        v-model="passwordForm.email"
+        type="email"
+        placeholder="Email"
+      >
+        <template #captcha>
+          <VerificationCode
+            :mode="0"
+            :email="passwordForm.email"
+          />
+        </template>
+      </FormInput>
     </a-form-item>
 
     <a-form-item label="验证码">
-      <div class="flex items-center gap-3">
-        <a-input
-          v-model:value="passwordForm.captchaInput"
-          placeholder="输入验证码"
-          :maxlength="4"
-        />
-        <CaptchaCanvas ref="captcha" />
-      </div>
+      <FormInput
+        v-model="passwordForm.code"
+        type="text"
+        placeholder="Code"
+      />
     </a-form-item>
 
     <a-form-item :wrapper-col="{ offset: 4, span: 16 }" style="text-align: center;">
@@ -62,7 +87,6 @@ import { ref, computed, watch, reactive } from 'vue'
 import {
   Form as AForm,
   FormItem as AFormItem,
-  Input as AInput,
   InputPassword as AInputPassword,
   Button as AButton,
   message,
@@ -70,13 +94,18 @@ import {
 } from 'ant-design-vue'
 import CaptchaCanvas from '@/components/common/CaptchaCanvas.vue'
 import { formFilters } from '@/filters/formFilters'
+import FormInput from '@/components/logins/FromInput.vue'
+import VerificationCode from '@/components/logins/VerificationCode.vue'
+import { resetPassword } from '@/apis/api.ts'
+import type { ResetPasswordDto } from '@/types/resetPasswordDto.ts'
 
 const passwordForm = ref({
   oldPassword: '',
   newPassword: '',
   confirmPassword: '',
   captchaInput: '',
-  email: ''
+  email: '',
+  code: ''
 })
 
 const errors = reactive({
@@ -114,7 +143,7 @@ const validateEmail = () => {
 }
 
 // 修改 changePassword
-const changePassword = () => {
+const changePassword = async () => {
   if (!passwordForm.value.oldPassword) {
     message.error('请输入旧密码')
     return
@@ -142,17 +171,34 @@ const changePassword = () => {
     return
   }
 
-  passwordForm.value = {
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-    captchaInput: '',
-    email: ''
+  // 准备重置密码的数据
+  const resetData: ResetPasswordDto = {
+    email: passwordForm.value.email,
+    code: passwordForm.value.code,
+    newPassword: passwordForm.value.newPassword,
+    confirmPassword: passwordForm.value.confirmPassword
   }
 
-  message.success('修改成功')
+  try {
+    const response = await resetPassword(resetData)
+    if (response.data.code === 200) {
+      message.success('密码修改成功')
+      // 重置表单
+      passwordForm.value = {
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+        captchaInput: '',
+        email: '',
+        code: ''
+      }
+    } else {
+      message.error(response.data.message || '密码修改失败')
+    }
+  } catch (error) {
+    message.error('密码修改失败，请稍后重试')
+  }
 }
-
 
 watch(() => passwordForm.value.newPassword, () => {
   validateNewPassword()
@@ -160,7 +206,8 @@ watch(() => passwordForm.value.newPassword, () => {
 })
 </script>
 
-<style scoped>
+
+<style scoped lang="scss">
 .password-strength {
   width: 100%;
 }
