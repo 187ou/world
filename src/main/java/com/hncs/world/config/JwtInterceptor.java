@@ -24,6 +24,8 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String requestUri = request.getRequestURI();
+        log.info("===== JwtInterceptor拦截到请求：{} =====", requestUri); // 关键日志
         // 放行OPTIONS请求
         if (HttpMethod.OPTIONS.toString().equals(request.getMethod())) {
             return true;

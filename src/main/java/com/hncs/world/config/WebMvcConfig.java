@@ -40,7 +40,7 @@ import java.util.List;
 public class WebMvcConfig extends WebMvcConfigurationSupport {
 
     @Autowired
-    private com.hncs.world.config.JwtInterceptor jwtInterceptor;
+    private JwtInterceptor jwtInterceptor;
 
     /**
      * 配置拦截器
@@ -49,7 +49,7 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor)
-                .addPathPatterns("/api/**") // 拦截所有/api开头的请求
+                .addPathPatterns("/**") // 拦截所有/api开头的请求
                 .excludePathPatterns(
                         // 仅排除公开接口（必须精确到具体路径）
                         "/api/auth/register",
