@@ -84,7 +84,7 @@ export const sendEmailBindCode = async (emailBindCodeDto: { newEmail: string; us
  * @returns 更新后的用户信息数据（包含code、message、data，其中data是UserVo结构）
  */
 export const updateUserInfo = async (userUpdateDto: UserUpdateDto) => {
-  return await http.put('/api/auth/info', userUpdateDto);
+  return await http.put('/api/auth/update-info', userUpdateDto);
 };
 
 /**
