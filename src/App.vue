@@ -1,5 +1,19 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { onMounted, onBeforeUnmount } from 'vue'
+import { useUserStore } from '@/stores/user.ts'
+
+const handleBeforeUnload = () => {
+  const userStore = useUserStore()
+  userStore.clearToken()
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
 </script>
 
 <template>

@@ -70,6 +70,11 @@ export const useUserStore = defineStore('user', {
         this.user.money = amount
         this.user.level = level
       }
+    },
+
+    clearToken() {
+      this.token = ''
+      localStorage.removeItem('token')
     }
   }
 })
