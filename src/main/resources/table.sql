@@ -49,20 +49,20 @@ CREATE TABLE `read` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户阅读记录表';
 
 CREATE TABLE `level` (
-                         `level` INT NOT NULL COMMENT '设置ID/关联等级（主键）',
-                         `print` INT NOT NULL COMMENT '打印设置（1=启用，0=禁用）',
-                         `reduce` INT NOT NULL COMMENT '缩小比例（如5=缩小5%）',
-                         `enlarge` INT NOT NULL COMMENT '放大比例（如10=放大10%）',
-                         `font` INT NOT NULL COMMENT '字体类型（枚举值：1=宋体，2=黑体等）',
-                         `font_size` INT NOT NULL COMMENT '字体大小（如12=12号字）',
-                         `bold` INT NOT NULL COMMENT '是否加粗（1=是，0=否）',
-                         `slash` INT NOT NULL COMMENT '是否斜体（1=是，0=否）',
-                         `underline` INT NOT NULL COMMENT '是否下划线（1=是，0=否）',
-                         `strikethrough` INT NOT NULL COMMENT '是否删除线（1=是，0=否）',
-                         `text_color` INT NOT NULL COMMENT '文字颜色（色值编码，如0x000000=黑色）',
-                         `background_color` INT NOT NULL COMMENT '背景色（色值编码，如0xFFFFFF=白色）',
-                         `style` INT NOT NULL COMMENT '样式（枚举值：1=默认，2=夜间模式等）',
-                         `line_spacing` INT NOT NULL COMMENT '行间距（如1=单倍，2=双倍）',
+                         `level` TINYINT NOT NULL COMMENT '设置ID/关联等级（主键）',
+                         `print` TINYINT NOT NULL COMMENT '打印设置（1=启用，0=禁用）',
+                         `reduce` TINYINT NOT NULL COMMENT '缩小比例（如5=缩小5%）',
+                         `enlarge` TINYINT NOT NULL COMMENT '放大比例（如10=放大10%）',
+                         `font` TINYINT NOT NULL COMMENT '字体类型（枚举值：1=宋体，2=黑体等）',
+                         `font_size` TINYINT NOT NULL COMMENT '字体大小（如12=12号字）',
+                         `bold` TINYINT NOT NULL COMMENT '是否加粗（1=是，0=否）',
+                         `slash` TINYINT NOT NULL COMMENT '是否斜体（1=是，0=否）',
+                         `underline` TINYINT NOT NULL COMMENT '是否下划线（1=是，0=否）',
+                         `strikethrough` TINYINT NOT NULL COMMENT '是否删除线（1=是，0=否）',
+                         `text_color` TINYINT NOT NULL COMMENT '文字颜色（色值编码，如0x000000=黑色）',
+                         `background_color` TINYINT NOT NULL COMMENT '背景色（色值编码，如0xFFFFFF=白色）',
+                         `style` TINYINT NOT NULL COMMENT '样式（枚举值：1=默认，2=夜间模式等）',
+                         `line_spacing` TINYINT NOT NULL COMMENT '行间距（如1=单倍，2=双倍）',
                          PRIMARY KEY (`level`) COMMENT '主键：设置ID/关联等级'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户阅读样式设置表';
 
