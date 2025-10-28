@@ -46,7 +46,7 @@ public interface UserService extends IService<User> {
      * 重置密码
      * @param resetPasswordDto 重置密码信息
      */
-    void resetPassword(ResetPasswordDto resetPasswordDto);
+    void resetPassword(Long userId,ResetPasswordDto resetPasswordDto);
 
 
     /**

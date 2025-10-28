@@ -17,8 +17,10 @@ public enum ErrorCode {
     LOGIN_ACCOUNT_DISABLED(402001, "账号错误"),
     // 验证码相关错误（403xx）
     VERIFY_CODE_INVALID(403001, "验证错误"),
-    // 密码重置相关错误（404xx）
-    RESET_DB_UPDATE_FAIL(404001, "重置密码失败，请稍后重试"),
+    //接口错误（404xx）
+    NOT_FOUND(404001, "接口错误"),
+    // 密码重置相关错误（405xx）
+    RESET_DB_UPDATE_FAIL(405001, "重置密码失败，请稍后重试"),
     // 用户更新相关错误（406xx）
     UPDATE_DB_FAIL(406001, "更新用户信息失败"),
 

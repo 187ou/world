@@ -8,6 +8,12 @@ spring:
     active: dev
   main:
     allow-circular-references: true
+    # 添加以下mvc配置
+  mvc:
+      throw-exception-if-no-handler-found: true  # 启用NoHandlerFoundException
+  web:
+    resources:
+      add-mappings: false  # 禁用默认静态资源映射，确保404异常能被抛出
   datasource:
     driver-class-name: ${world.datasource.driver-class-name}
     url: jdbc:mysql://${world.datasource.host}:${world.datasource.port}/${world.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true

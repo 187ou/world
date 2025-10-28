@@ -185,32 +185,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @param resetPasswordDto 重置密码信息
      */
     @Override
-    public void resetPassword(ResetPasswordDto resetPasswordDto) {
+    public void resetPassword(Long userId,ResetPasswordDto resetPasswordDto) {
         String email = resetPasswordDto.getEmail();
         String newPassword = resetPasswordDto.getNewPassword();
+        // 1. 校验用户是否存在（原有逻辑）
+        User user = baseMapper.selectById(userId);
+        if (user == null) {
+            log.info("更新用户信息失败：用户不存在，用户ID={}", userId);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "用户不存在");
+        }
+        // 2. 业务校验：邮箱是否匹配（依赖用户信息，核心业务规则）
+        if (!user.getEmail().equals(email)) {
+            log.info("更新用户信息失败：邮箱不匹配，用户ID={}", userId);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "邮箱不匹配");
+        }
 
-        // 1. 业务校验：验证码有效性（依赖验证码工具，核心业务）
+        // 3. 业务校验：验证码有效性（依赖验证码工具，核心业务）
         if (!verificationCodeUtil.validateCode(email, resetPasswordDto.getCode())) {
             log.info("重置密码失败：验证码无效，邮箱={}", email);
             throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码错误或已过期");
         }
 
-        // 2. 业务校验：用户是否存在（依赖数据库，核心业务）
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getEmail, email);
-        User user = getOne(queryWrapper);
-        if (user == null) {
-            log.info("重置密码失败：用户不存在，邮箱={}", email);
-            throw new BusinessException(ErrorCode.INVALID_PARAMS, "用户不存在");
-        }
-
-        // 3. 业务校验：新密码是否与旧密码相同（安全增强，依赖数据库）
+        // 4. 业务校验：新密码是否与旧密码相同（安全增强，依赖数据库）
         if (BCrypt.checkpw(newPassword, user.getPassword())) {
             log.info("重置密码失败：新密码与旧密码相同，用户ID={}", user.getUserId());
             throw new BusinessException(ErrorCode.INVALID_PARAMS, "新密码不能与旧密码相同");
         }
 
-        // 4. 核心逻辑：更新密码并记录时间
+        // 5. 核心逻辑：更新密码并记录时间
         user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
         user.setUpdateTime(new Date());
         boolean updateSuccess = updateById(user);

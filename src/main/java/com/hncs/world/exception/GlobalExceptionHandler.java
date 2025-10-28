@@ -3,11 +3,13 @@ package com.hncs.world.exception;
 import com.hncs.world.common.ErrorCode;
 import com.hncs.world.common.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.stream.Collectors;
 
@@ -18,6 +20,17 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    /**
+     * 处理404 - 接口不存在
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<Result<?>> handleNoHandlerFound(NoHandlerFoundException e) {
+        // 日志记录：访问不存在的路径，用warn级别
+        log.info("访问不存在的路径: {} {}", e.getHttpMethod(), e.getRequestURL());
+
+        Result<?> result = Result.error(ErrorCode.NOT_FOUND.getCode(), "请求的接口不存在");
+        return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+    }
 
     /**
      * 处理业务异常（自定义异常）

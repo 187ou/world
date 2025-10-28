@@ -120,7 +120,9 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     @ApiOperation("重置密码")
-    public Result<Void> resetPassword(@Valid @RequestBody ResetPasswordDto resetPasswordDto) {
+    public Result<Void> resetPassword(HttpServletRequest request,@Valid @RequestBody ResetPasswordDto resetPasswordDto) {
+        log.info("接收到用户更改密码的请求，参数：{}", resetPasswordDto);
+        Long userId = (Long) request.getAttribute("userId");
         // 1. 跨字段校验：新密码与确认密码一致性（简单逻辑，适合Controller层）
         if (!resetPasswordDto.getNewPassword().equals(resetPasswordDto.getConfirmPassword())) {
             throw new BusinessException(ErrorCode.INVALID_PARAMS, "两次输入的密码不一致");
@@ -132,7 +134,7 @@ public class AuthController {
         }
 
         // 3. 调用Service处理核心业务（依赖数据库和验证码校验）
-        userService.resetPassword(resetPasswordDto);
+        userService.resetPassword(userId,resetPasswordDto);
         return Result.success();
     }
 
