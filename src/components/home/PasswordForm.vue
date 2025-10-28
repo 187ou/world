@@ -20,8 +20,6 @@
       <div v-if="errors.confirmPassword" class="text-red-500 text-sm">{{ errors.confirmPassword }}</div>
     </a-form-item>
 
-
-
     <a-form-item label="密码强度">
       <div class="password-strength">
         <a-progress
@@ -32,26 +30,6 @@
         <div class="strength-text">{{ passwordStrength.text }}</div>
       </div>
     </a-form-item>
-
-<!--    <a-form-item label="邮箱">-->
-<!--      <a-input-->
-<!--        v-model:value="passwordForm.email"-->
-<!--        placeholder="请输入邮箱地址"-->
-<!--        @blur="validateEmail"-->
-<!--      />-->
-<!--      <div v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</div>-->
-<!--    </a-form-item>-->
-
-<!--    <a-form-item label="验证码">-->
-<!--      <div class="flex items-center gap-3">-->
-<!--        <a-input-->
-<!--          v-model:value="passwordForm.captchaInput"-->
-<!--          placeholder="输入验证码"-->
-<!--          :maxlength="4"-->
-<!--        />-->
-<!--        <CaptchaCanvas ref="captcha" />-->
-<!--      </div>-->
-<!--    </a-form-item>-->
 
     <a-form-item label="邮箱">
       <FormInput
@@ -183,7 +161,6 @@ const changePassword = async () => {
     const response = await resetPassword(resetData)
     if (response.data.code === 200) {
       message.success('密码修改成功')
-      // 重置表单
       passwordForm.value = {
         oldPassword: '',
         newPassword: '',
@@ -196,6 +173,7 @@ const changePassword = async () => {
       message.error(response.data.message || '密码修改失败')
     }
   } catch (error) {
+    console.error(error)
     message.error('密码修改失败，请稍后重试')
   }
 }
@@ -205,7 +183,6 @@ watch(() => passwordForm.value.newPassword, () => {
   validateConfirmPassword()
 })
 </script>
-
 
 <style scoped lang="scss">
 .password-strength {

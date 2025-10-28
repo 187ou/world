@@ -13,6 +13,9 @@ import { ref } from 'vue'
 import { registerCode, sendVerificationCode, sendEmailBindCode } from '@/apis/api.ts'
 import { message } from 'ant-design-vue'
 import { formFilters } from '@/filters/formFilters'
+import { useUserStore } from '@/stores/user.ts'
+
+const useStore = useUserStore()
 
 const props = defineProps<{
   email: string
@@ -27,7 +30,6 @@ const emit = defineEmits<{
 const isSendingCode = ref(false)
 
 const handleSendCode = async () => {
-  // 验证邮箱格式
   const emailResult = formFilters.validateEmail(props.email)
   if (!emailResult.isValid) {
     message.error(emailResult.message || '请输入有效的邮箱地址')
@@ -42,7 +44,14 @@ const handleSendCode = async () => {
     } else if (props.mode === 1) {
       res = await registerCode(props.email)
     } else {
-      res = await sendEmailBindCode({ newEmail: props.email, userId: 0 })
+      const userId = useStore.user?.id
+      if (userId === undefined) {
+        message.error('用户未登录或用户ID不存在')
+        emit('sendError', new Error('用户未登录'))
+        isSendingCode.value = false
+        return
+      }
+      res = await sendEmailBindCode({ newEmail: props.email, userId: userId })
     }
 
     console.log('发送验证码到邮箱:', res)
@@ -56,5 +65,4 @@ const handleSendCode = async () => {
     isSendingCode.value = false
   }
 }
-
 </script>
