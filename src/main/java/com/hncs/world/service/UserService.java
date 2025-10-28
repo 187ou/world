@@ -1,10 +1,7 @@
 package com.hncs.world.service;
 
 
-import com.hncs.world.pojo.dto.ResetPasswordDto;
-import com.hncs.world.pojo.dto.UserLoginDto;
-import com.hncs.world.pojo.dto.UserRegisterDto;
-import com.hncs.world.pojo.dto.UserUpdateDto;
+import com.hncs.world.pojo.dto.*;
 import com.hncs.world.pojo.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hncs.world.pojo.vo.LoginVo;
@@ -36,9 +33,8 @@ public interface UserService extends IService<User> {
     /**
      * 用户登出
      * @param token 用户登录后携带的token
-     * @param refreshToken
      */
-    void logout(String token, String refreshToken);
+    void logout(String token);
 
     /**
      * 发送验证码
@@ -58,11 +54,23 @@ public interface UserService extends IService<User> {
      * @param userUpdateDto 更新的用户信息
      * @return
      */
-    UserVo updateUserInfo(UserUpdateDto userUpdateDto);
+    UserVo updateUserInfo(Long userId,UserUpdateDto userUpdateDto);
 
     /**
      * 发送注册验证码
      * @param email 用户邮箱
      */
     void sendRegisterCode(String email);
+
+    /**
+     * 获取用户信息
+     * @param  userId 用户ID
+     */
+    UserVo getUserInfoById(Long userId);
+
+    /**
+     * 更改用户邮箱
+     * @param  updateEmailDto 更改邮箱的信息
+     */
+    void updateEmail(Long userId,UpdateEmailDto updateEmailDto);
 }

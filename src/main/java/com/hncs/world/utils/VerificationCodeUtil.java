@@ -75,6 +75,16 @@ public class VerificationCodeUtil {
         long currentTime = System.currentTimeMillis();
         return (currentTime - lastSendTime) > sendInterval * 1000;
     }
+    /**
+     * 将验证码从缓存中清除
+     * @param cacheKey
+     */
+    public void clearCode(String cacheKey) {
+        // 从验证码缓存中移除
+        codeCache.remove(cacheKey);
+        // 可选：同时移除发送时间缓存（避免影响下次发送频率判断）
+        lastSendTimeCache.remove(cacheKey);
+    }
 
     public CodeInfo getCodeInfo(String email) {
         return codeCache.get(email);
