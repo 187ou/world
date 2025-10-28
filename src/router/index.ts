@@ -10,22 +10,25 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/home'
+      redirect: '/login'
     },
     {
       path: '/home',
       name: 'home',
       component: HomeView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/inner',
       name: 'inner',
       component: InnerView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/login',
       name: 'login',
       component: LoginView,
+      meta: { requiresGuest: true }
     },
     {
       path: '/:pathMatch(.*)*',
@@ -35,21 +38,22 @@ const router = createRouter({
     {
       path: '/test',
       name: 'test',
-      component: TestView
+      component: TestView,
+      meta: { requiresAuth: false }
     }
   ],
 })
 
-// router.beforeEach((to, from, next) => {
-//   const isAuthenticated = !!localStorage.getItem('userToken')
-//
-//   if (to.meta.requiresAuth && !isAuthenticated) {
-//     next('/login')
-//   } else if (to.meta.requiresGuest && isAuthenticated) {
-//     next('/home')
-//   } else {
-//     next()
-//   }
-// })
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem('token')
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login')
+  } else if (to.meta.requiresGuest && isAuthenticated) {
+    next('/home')
+  } else {
+    next()
+  }
+})
 
 export default router

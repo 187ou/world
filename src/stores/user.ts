@@ -61,32 +61,15 @@ export const useUserStore = defineStore('user', {
         this.token = ''
         this.user = null
         localStorage.removeItem('token')
+        localStorage.clear()
       }
     },
 
-    // 获取用户信息
-    // async fetchUserInfo() {
-    //   try {
-    //     const res = await fetchUserInfo()
-    //     if (res.data) {
-    //       this.user = res.data
-    //       return res.data
-    //     }
-    //     return null
-    //   } catch (error) {
-    //     console.error('获取用户信息失败:', error)
-    //     return null
-    //   }
-    // },
-
-    // 初始化
-    // async init() {
-    //   if (this.token) {
-    //     const userInfo = await this.fetchUserInfo()
-    //     if (!userInfo) {
-    //       await this.logout()
-    //     }
-    //   }
-    // }
+    async updateUserMoney(userId: number, amount: number, level: number) {
+      if (this.user && this.user.id === userId) {
+        this.user.money = amount
+        this.user.level = level
+      }
+    }
   }
 })

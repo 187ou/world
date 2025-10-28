@@ -119,16 +119,18 @@ import {
   Tabs as ATabs,
   TabPane as ATabPane,
   InputSearch as AInputSearch,
-  Modal as AModal
+  Modal as AModal, message,
 } from 'ant-design-vue'
 import PreviewModal from '@/components/common/PreviewModal.vue'
 import DocumentList from '@/components/home/DocumentList.vue'
 import docIcon from '@/assets/home/文档.png'
 import starIcon from '@/assets/home/收藏.png'
 import buyIcon from '@/assets/home/购买.png'
+import { useUserStore } from '@/stores/user.ts'
 
 const router = useRouter()
 
+const userStore = useUserStore()
 const activeTabKey = ref('recent')
 const searchQuery = ref('')
 const previewModalVisible = ref(false)
@@ -174,11 +176,40 @@ const handlePurchaseCancel = () => {
   currentDoc.value = null
 }
 
-const confirmPurchase = () => {
+const confirmPurchase = async () => {
   if (currentDoc.value?.previewUrl) {
-    // 这里可以添加实际的购买逻辑
-    console.log('购买文档:', currentDoc.value)
+    if (!userStore.user) {
+      message.error('请先登录')
+      return
+    }
+
+    const price = calculatePriceByLevel(userStore.user.level)
+
+    if (userStore.user.money < price) {
+      message.error('余额不足')
+      return
+    }
+
+    try {
+      console.log('购买文档:', currentDoc.value)
+
+      // 这里的 level 以及 price 使用后端返回的会员等级和价格，调用后端接口获取到
+      // await userStore.updateUserMoney(userStore.user.id, account, level)
+
+      purchaseModalVisible.value = false
+      currentDoc.value = null
+
+      message.success('购买成功')
+    } catch (error) {
+      console.error('购买失败:', error)
+      message.error('购买失败')
+    }
   }
+}
+
+const calculatePriceByLevel = (level: number): number => {
+  const prices = [10, 10, 8, 5, 3]
+  return prices[level] ?? 10
 }
 </script>
 
