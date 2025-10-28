@@ -3,20 +3,22 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <router-view v-slot="{ Component }">
-    <transition name="fade" mode="out-in">
-      <component :is="Component" />
-    </transition>
-  </router-view>
+  <transition mode="out-in" name="route-transition">
+    <router-view />
+  </transition>
 </template>
 
 <style scoped lang="scss">
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from, .fade-leave-to {
+:deep(.route-transition-enter-from) {
+  transform: translateX(50px);
   opacity: 0;
 }
+:deep(.route-transition-leave-to) {
+  transform: translateX(-50px);
+  opacity: 0;
+}
+:deep(.route-transition-enter-active),
+:deep(.route-transition-leave-active) {
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
 </style>
-

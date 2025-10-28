@@ -41,7 +41,7 @@ http.interceptors.response.use(
   (response: AxiosResponse) => {
     const { code, msg } = response.data
 
-    if (code !== 1 || 0 || 20000) {
+    if (![1, 0, 20000].includes(code)) {
       return Promise.reject(new Error(msg || '请求失败'))
     }
 
