@@ -39,31 +39,26 @@ http.interceptors.request.use(
 // 响应拦截器
 http.interceptors.response.use(
   (response: AxiosResponse) => {
+    const { code, msg } = response.data
+
+    if (code !== 1 || 0 || 20000) {
+      return Promise.reject(new Error(msg || '请求失败'))
+    }
+
     return response.data
   },
   (error) => {
     const status = error.response?.status || 500
-    let message = '服务器错误'
 
-    switch (status) {
-      case 400:
-        message = '请求参数错误'
-        break
-      case 401:
-        message = '未授权或登录过期'
-        break
-      case 403:
-        message = '没有权限访问'
-        break
-      case 404:
-        message = '请求地址不存在'
-        break
-      case 500:
-        message = '服务器内部错误'
-        break
+    const statusMessages: Record<number, string> = {
+      400: '请求参数错误',
+      401: '未授权或登录过期',
+      403: '没有权限访问',
+      404: '请求地址不存在',
+      500: '服务器内部错误'
     }
 
-    return Promise.reject(new Error(message))
+    return Promise.reject(new Error(statusMessages[status] || `未知错误 (${status})`))
   }
 )
 
