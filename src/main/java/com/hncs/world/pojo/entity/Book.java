@@ -3,7 +3,11 @@ package com.hncs.world.pojo.entity;
 import com.baomidou.mybatisplus.annotation.*;
 
 import java.util.Date;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 书籍信息表
@@ -11,6 +15,9 @@ import lombok.Data;
  */
 @TableName(value ="book")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Book {
     /**
      * 主键ID（自增）
@@ -37,11 +44,6 @@ public class Book {
      * 更新时间（自动更新）
      */
     private Date updateTime;
-
-    /**
-     * 更新人
-     */
-    private String updateUser;
 
     /**
      * 阅读信息令牌

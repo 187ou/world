@@ -10,14 +10,13 @@
             <result property="bookLink" column="book_link" />
             <result property="createTime" column="create_time" />
             <result property="updateTime" column="update_time" />
-            <result property="updateUser" column="update_user" />
             <result property="token" column="token" />
             <result property="isDeleted" column="is_deleted" />
             <result property="linkUser" column="link_user" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        book_id,book_name,book_link,create_time,update_time,update_user,
+        book_id,book_name,book_link,create_time,update_time,
         token,is_deleted,link_user
     </sql>
 </mapper>

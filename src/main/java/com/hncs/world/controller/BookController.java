@@ -6,6 +6,7 @@ import com.hncs.world.common.UnifyList;
 import com.hncs.world.exception.BusinessException;
 import com.hncs.world.pojo.dto.BookOpenDto;
 import com.hncs.world.pojo.dto.BookPreviewDto;
+import com.hncs.world.pojo.dto.UserCollectBookDto;
 import com.hncs.world.pojo.vo.BookVo;
 import com.hncs.world.pojo.vo.BookOpenVo;
 import com.hncs.world.pojo.vo.BookPreviewVo;
@@ -132,5 +133,20 @@ public class BookController {
         }
 
         return Result.success(new UnifyList<>(bookVoList.size(), bookVoList));
+    }
+
+    @PostMapping("/collect/add")
+    @ApiOperation("添加小说收藏接口")
+    public Result<Void> bookCollectAdd(@RequestBody UserCollectBookDto userCollectBookDto, HttpServletRequest request){
+        if(userCollectBookDto == null){
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "book is empty");
+        }
+
+        // 通过request获取用户ID
+        Long userId = (Long) request.getAttribute("userId");
+
+        bookServiceImpl.bookCollectAdd(userId,userCollectBookDto);
+
+        return Result.success();
     }
 }

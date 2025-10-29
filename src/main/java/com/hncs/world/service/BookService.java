@@ -1,5 +1,6 @@
 package com.hncs.world.service;
 
+import com.hncs.world.pojo.dto.UserCollectBookDto;
 import com.hncs.world.pojo.entity.Book;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hncs.world.pojo.vo.BookVo;
@@ -55,4 +56,12 @@ public interface BookService extends IService<Book> {
      * @return 最近阅读结果
      */
     List<BookVo> bookRecently(Long userId);
+
+    /**
+     * 添加用户收藏的书籍
+     *
+     * @param userId 用户id
+     * @param userCollectBookDto 收藏书籍信息
+     */
+    void bookCollectAdd(Long userId, UserCollectBookDto userCollectBookDto);
 }

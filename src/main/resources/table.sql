@@ -1,6 +1,7 @@
 -- book表，purchased表，user表都有修改，甚至大改
 
 -- auto-generated definition
+-- auto-generated definition
 create table book
 (
     book_id     bigint auto_increment comment '主键ID（自增）'
@@ -9,7 +10,6 @@ create table book
     book_link   varchar(500)                       not null comment '书籍链接',
     create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间（自动填充）',
     update_time datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间（自动更新）',
-    update_user varchar(100)                       not null comment '更新人',
     token       varchar(255)                       null comment '阅读信息令牌',
     is_deleted  tinyint  default 0                 not null comment '逻辑删除（1=已删除，0=未删除）',
     link_user   varchar(1024)                      null comment '小说关联用户 - Json形式'
@@ -19,9 +19,6 @@ create table book
 create index idx_token
     on book (token)
     comment '令牌索引（加速查询）';
-
-
-
 
 -- auto-generated definition
 create table user

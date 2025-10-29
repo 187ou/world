@@ -2,8 +2,11 @@ package com.hncs.world.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hncs.world.common.ErrorCode;
 import com.hncs.world.exception.BusinessException;
+import com.hncs.world.pojo.dto.UserCollectBookDto;
 import com.hncs.world.pojo.entity.Book;
 import com.hncs.world.pojo.vo.BookVo;
 import com.hncs.world.pojo.vo.BookOpenVo;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -162,6 +166,52 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
         return bookVoList.stream()
                 .sorted((b1, b2) -> b2.getUpdateTime().compareTo(b1.getUpdateTime()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 用户收藏小说
+     *
+     * @param userId 用户id
+     * @param userCollectBookDto 收藏书籍信息
+     */
+    @Override
+    public void bookCollectAdd(Long userId, UserCollectBookDto userCollectBookDto) {
+        if(userId == null){
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "userId is empty");
+        }
+
+        //预设书籍
+        Book book;
+        Gson gson = new Gson();
+
+        //判断书籍是否存在
+        QueryWrapper<Book> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("book_name", userCollectBookDto.getBookName());
+        //存在则获取，不存在则创建
+        if(this.count(queryWrapper) > 0){
+            //获取书籍联系用户id
+            book = this.getOne(queryWrapper);
+            String linkUser = book.getLinkUser();
+
+            //Json反序列化，添加联系用户id
+            List<String> userIds = gson.fromJson(linkUser, new TypeToken<List<String>>(){});
+            userIds.add(userId.toString());
+            //Json序列化
+            book.setLinkUser(gson.toJson(userIds));
+        }else{
+            //构建书籍
+            book = new Book();
+            book.setBookName(userCollectBookDto.getBookName());
+            book.setBookLink(userCollectBookDto.getBookLink());
+
+            //添加联系用户id
+            List<String> userIds = new ArrayList<>();
+            userIds.add(userId.toString());
+            //Json序列化
+            book.setLinkUser(gson.toJson(userIds));
+        }
+
+        this.saveOrUpdate(book);
     }
 }
 
