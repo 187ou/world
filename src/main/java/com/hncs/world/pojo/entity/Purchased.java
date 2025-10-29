@@ -15,20 +15,15 @@ import lombok.Data;
 @Data
 public class Purchased {
     /**
-     * 用户ID（联合主键）
+     * 用户ID（主键）
      */
     @TableId
     private Long userId;
 
     /**
-     * 书籍ID（联合主键）
+     * 用户已购小说id - Json形式
      */
-    private Long bookId;
-
-    /**
-     * 书籍链接
-     */
-    private String bookLink;
+    private String purchasedBook;
 
     /**
      * 购买时间（对应LocalDateTime）

@@ -2,6 +2,7 @@ package com.hncs.world.service;
 
 import com.hncs.world.pojo.entity.Book;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hncs.world.pojo.vo.BookVo;
 import com.hncs.world.pojo.vo.BookOpenVo;
 import com.hncs.world.pojo.vo.BookPreviewVo;
 import com.hncs.world.pojo.vo.BookSearchVo;
@@ -38,4 +39,20 @@ public interface BookService extends IService<Book> {
      * @return 小说内容
      */
     BookOpenVo bookOpen(String bookLink);
+
+    /**
+     * 获取用户收藏的书籍
+     *
+     * @param userId 用户id
+     * @return 收藏结果
+     */
+    List<BookVo> bookCollect(Long userId);
+
+    /**
+     * 获取用户最近阅读的书籍
+     *
+     * @param userId 用户id
+     * @return 最近阅读结果
+     */
+    List<BookVo> bookRecently(Long userId);
 }

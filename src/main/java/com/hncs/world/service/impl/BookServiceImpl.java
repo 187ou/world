@@ -1,9 +1,11 @@
 package com.hncs.world.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hncs.world.common.ErrorCode;
 import com.hncs.world.exception.BusinessException;
 import com.hncs.world.pojo.entity.Book;
+import com.hncs.world.pojo.vo.BookVo;
 import com.hncs.world.pojo.vo.BookOpenVo;
 import com.hncs.world.pojo.vo.BookPreviewVo;
 import com.hncs.world.pojo.vo.BookSearchVo;
@@ -13,11 +15,13 @@ import com.hncs.world.pyLink.PythonIntegration;
 import com.hncs.world.service.BookService;
 import com.hncs.world.mapper.BookMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
 * @author 24774
@@ -108,6 +112,56 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
             log.info("打开小说失败: {}", e.getMessage(), e);
             throw new BusinessException(ErrorCode.PY_EXECUTE_FAILED, "小说打开失败");
         }
+    }
+
+    /**
+     * 获取用户收藏
+     *
+     * @param userId 用户ID
+     * @return 收藏列表
+     */
+    @Override
+    public List<BookVo> bookCollect(Long userId) {
+        if(userId == null){
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "userId is empty");
+        }
+
+        // 数据库条件查询用户收藏
+        QueryWrapper<Book> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("link_user", userId.toString());
+        List<Book> bookList = this.list(queryWrapper);
+
+        //用户没有收藏任何书籍
+        if(bookList.isEmpty()){
+            return null;
+        }
+
+        // 将数据库结果转换为VO
+        return bookList.stream().map(book -> {
+            BookVo bookVo = new BookVo();
+            BeanUtils.copyProperties(book, bookVo);
+            return bookVo;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取用户最近阅读
+     *
+     * @param userId 用户ID
+     * @return 最近阅读列表
+     */
+    @Override
+    public List<BookVo> bookRecently(Long userId) {
+        List<BookVo> bookVoList = bookCollect(userId);
+
+        if(bookVoList == null){
+            return null;
+        }
+
+        //根据更新时间倒序
+        return bookVoList.stream()
+                .sorted((b1, b2) -> b2.getUpdateTime().compareTo(b1.getUpdateTime()))
+                .collect(Collectors.toList());
     }
 }
 

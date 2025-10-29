@@ -44,14 +44,14 @@ public class Book {
     private String updateUser;
 
     /**
-     * 是否收藏（1=收藏，0=未收藏）
-     */
-    private Integer isCollect;
-
-    /**
      * 阅读信息令牌
      */
     private String token;
+
+    /**
+     * 小说关联用户id - Json形式
+     */
+    private String linkUser;
 
     /**
      * 逻辑删除（1=已删除，0=未删除）

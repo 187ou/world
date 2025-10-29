@@ -1,41 +1,63 @@
-CREATE TABLE book (
-                      book_id          BIGINT         NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增）'
-                          PRIMARY KEY,
-                      book_name   VARCHAR(255)   NOT NULL COMMENT '书籍名称',
-                      book_link   VARCHAR(500)   NOT NULL COMMENT '书籍链接',
-                      create_time DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间（自动填充）',
-                      update_time DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间（自动更新）',
-                      update_user VARCHAR(100)   NOT NULL COMMENT '更新人',
-                      is_collect  TINYINT        NOT NULL DEFAULT 0 COMMENT '是否收藏（1=收藏，0=未收藏）',
-                      token       VARCHAR(255)   NULL COMMENT '阅读信息令牌',
-                      is_deleted  TINYINT        NOT NULL DEFAULT 0 COMMENT '逻辑删除（1=已删除，0=未删除）',
-                      INDEX idx_token (token) COMMENT '令牌索引（加速查询）'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '书籍信息表';
+-- book表，purchased表，user表都有修改，甚至大改
+
+-- auto-generated definition
+create table book
+(
+    book_id     bigint auto_increment comment '主键ID（自增）'
+        primary key,
+    book_name   varchar(255)                       not null comment '书籍名称',
+    book_link   varchar(500)                       not null comment '书籍链接',
+    create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间（自动填充）',
+    update_time datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间（自动更新）',
+    update_user varchar(100)                       not null comment '更新人',
+    token       varchar(255)                       null comment '阅读信息令牌',
+    is_deleted  tinyint  default 0                 not null comment '逻辑删除（1=已删除，0=未删除）',
+    link_user   varchar(1024)                      null comment '小说关联用户 - Json形式'
+)
+    comment '书籍信息表' collate = utf8mb4_unicode_ci;
+
+create index idx_token
+    on book (token)
+    comment '令牌索引（加速查询）';
 
 
-CREATE TABLE user (
-                      user_id          BIGINT         NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增）'
-                          PRIMARY KEY,
-                      nick_name   VARCHAR(100)   NOT NULL COMMENT '用户昵称',
-                      user_name   VARCHAR(100)   NOT NULL COMMENT '登录用户名',
-                      password    VARCHAR(255)   NOT NULL COMMENT '用户密码（加密存储）',
-                      sex         TINYINT        NOT NULL DEFAULT 0 COMMENT '性别（1=男，2=女，0=未知）',
-                      email       VARCHAR(100)   NOT NULL COMMENT '用户邮箱',
-                      phone       VARCHAR(20)    NOT NULL COMMENT '用户手机号',
-                      level       INT            NOT NULL DEFAULT 1 COMMENT '用户等级（默认1级）',
-                      money       INT            NOT NULL DEFAULT 0 COMMENT '账户余额（单位：分，避免浮点数精度问题）',
-                      status      TINYINT        NOT NULL DEFAULT 1 COMMENT '账号状态（1=正常，0=禁用）',
-                      is_deleted  TINYINT        NOT NULL DEFAULT 0 COMMENT '逻辑删除（1=已删除，0=未删除）',
-                      create_time DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间（自动填充）',
-                      update_time DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间（自动更新）',
-    -- 唯一索引（保持原业务约束，命名规范调整为uk_字段名）
-                      CONSTRAINT uk_user_name UNIQUE (user_name) COMMENT '用户名唯一，避免重复注册',
-                      CONSTRAINT uk_email UNIQUE (email) COMMENT '邮箱唯一，避免重复绑定',
-                      CONSTRAINT uk_phone UNIQUE (phone) COMMENT '手机号唯一，避免重复绑定',
-    -- 普通索引（根据查询频率添加，如按用户名/手机号查询）
-                      INDEX idx_user_name (user_name) COMMENT '用户名查询索引',
-                      INDEX idx_phone (phone) COMMENT '手机号查询索引'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '用户信息表';
+
+
+-- auto-generated definition
+create table user
+(
+    user_id     bigint auto_increment comment '主键ID（自增）'
+        primary key,
+    nick_name   varchar(100)                       null comment '用户昵称',
+    user_name   varchar(100)                       not null comment '登录用户名',
+    password    varchar(255)                       not null comment '用户密码（加密存储）',
+    sex         tinyint  default 0                 not null comment '性别（1=男，2=女，0=未知）',
+    email       varchar(100)                       not null comment '用户邮箱',
+    phone       varchar(20)                        null comment '用户手机号',
+    level       int      default 1                 not null comment '用户等级（默认1级）',
+    money       int      default 0                 not null comment '账户余额（单位：分，避免浮点数精度问题）',
+    status      tinyint  default 1                 not null comment '账号状态（1=正常，0=禁用）',
+    is_deleted  tinyint  default 0                 not null comment '逻辑删除（1=已删除，0=未删除）',
+    create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间（自动填充）',
+    update_time datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间（自动更新）',
+    constraint uk_email
+        unique (email) comment '邮箱唯一，避免重复绑定',
+    constraint uk_phone
+        unique (phone) comment '手机号唯一，避免重复绑定',
+    constraint uk_user_name
+        unique (user_name) comment '用户名唯一，避免重复注册'
+)
+    comment '用户信息表' collate = utf8mb4_unicode_ci;
+
+create index idx_phone
+    on user (phone)
+    comment '手机号查询索引';
+
+create index idx_user_name
+    on user (user_name)
+    comment '用户名查询索引';
+
+
 
 
 CREATE TABLE `read` (
@@ -47,6 +69,7 @@ CREATE TABLE `read` (
                         PRIMARY KEY (`token`) COMMENT '主键：阅读标识令牌',
                         KEY `idx_book_name` (`book_name`) COMMENT '书籍名称索引，优化查询效率'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户阅读记录表';
+
 
 CREATE TABLE `level` (
                          `level` TINYINT NOT NULL COMMENT '设置ID/关联等级（主键）',
@@ -66,19 +89,22 @@ CREATE TABLE `level` (
                          PRIMARY KEY (`level`) COMMENT '主键：设置ID/关联等级'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户阅读样式设置表';
 
-CREATE TABLE `purchased` (
-                             `user_id` BIGINT NOT NULL COMMENT '用户ID（联合主键）',
-                             `book_id` BIGINT NOT NULL COMMENT '书籍ID（联合主键）',
-                             `book_link` VARCHAR(500) NOT NULL COMMENT '书籍链接',
-                             `purchased_time` DATETIME NOT NULL COMMENT '购买时间（对应LocalDateTime）',
-                             PRIMARY KEY (`user_id`, `book_id`),
-                             KEY `idx_purchased_time` (`purchased_time`),
-                             CONSTRAINT `fk_purchased_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE,
-                             CONSTRAINT `fk_purchased_book` FOREIGN KEY (`book_id`) REFERENCES `book` (`book_id`) ON DELETE CASCADE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci
-    COMMENT = '用户书籍购买记录表';
+-- auto-generated definition
+create table purchased
+(
+    user_id        bigint                   not null comment '用户ID（主键）',
+    purchased_book VARCHAR(1024)            not null comment '用户已购小说id - Json形式',
+    purchased_time datetime default CURRENT_TIMESTAMP not null comment '购买时间（对应LocalDateTime）',
+    primary key (user_id),
+    constraint fk_purchased_user
+        foreign key (user_id) references user (user_id)
+            on delete cascade
+)
+    comment '用户书籍购买记录表' collate = utf8mb4_unicode_ci;
+
+create index idx_purchased_time
+    on purchased (purchased_time);
+
 
 CREATE TABLE `hot` (
                        `book_name` VARCHAR(255) NOT NULL COMMENT '书籍名称（主键）',

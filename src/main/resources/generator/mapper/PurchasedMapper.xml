@@ -6,12 +6,11 @@
 
     <resultMap id="BaseResultMap" type="com.hncs.world.pojo.entity.Purchased">
             <id property="userId" column="user_id" />
-            <id property="bookId" column="book_id" />
-            <result property="bookLink" column="book_link" />
+            <result property="purchasedBook" column="purchased_book" />
             <result property="purchasedTime" column="purchased_time" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        user_id,book_id,book_link,purchased_time
+        user_id,purchased_book,purchased_time
     </sql>
 </mapper>
