@@ -1,7 +1,18 @@
-**/target/
-.idea
+# 编译产物目录（Maven/Gradle 编译生成）
+/target/
+
+# IDE 配置文件（IntelliJ IDEA）
+.idea/
 *.iml
+
+# Java 编译后的字节码文件
 *.class
+
+# 测试类（如果你想忽略所有 Test.java 文件，当前配置没问题；若想保留部分，可调整）
 *Test.java
-application-dev.yml
+
+# 个人数据库配置（你的核心需求，已正确添加）
+src/main/resources/application-dev.yml
+
+# 测试目录（若为单元测试目录，建议保留，避免误删有用测试代码；若确为无用目录，可保留）
 **/test/

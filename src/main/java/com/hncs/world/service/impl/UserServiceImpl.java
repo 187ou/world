@@ -153,7 +153,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     /**
-     * 发送验证码
+     * 发送重置密码验证码
      * @param email 用户邮箱
      */
     @Override
@@ -180,39 +180,65 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
     }
 
+
+    /**
+     * 发送更新邮箱验证码
+     * @param userId 用户ID
+     * @param email 新邮箱
+     */
+    @Override
+    public void sendUpdatePwdVerifyCode(Long userId, String email) {
+        // 1. 校验邮箱是否与用户绑定邮箱一致
+        User user = baseMapper.selectById(userId);
+        if (user == null || !email.equals(user.getEmail())) {
+            log.info("发送验证码失败：邮箱不匹配，userId={}，输入邮箱={}", userId, email);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "邮箱与账号绑定邮箱不一致");
+        }
+
+        // 2. 生成验证码（核心业务逻辑）
+        String code = verificationCodeUtil.generateCode(email);
+
+        // 3. 发送验证码并处理异常（核心业务逻辑，依赖外部服务）
+        try {
+            emailUtil.sendVerificationCode(email, code);
+            log.info("验证码发送成功，邮箱={}", email);
+        } catch (Exception e) {
+            log.info("验证码发送失败，邮箱={}", email, e);
+            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码发送失败，请稍后重试");
+        }
+    }
+
+
     /**
      * 重置密码
      * @param resetPasswordDto 重置密码信息
      */
     @Override
-    public void resetPassword(Long userId,ResetPasswordDto resetPasswordDto) {
+    public void resetPassword(ResetPasswordDto resetPasswordDto) {
         String email = resetPasswordDto.getEmail();
         String newPassword = resetPasswordDto.getNewPassword();
         // 1. 校验用户是否存在（原有逻辑）
-        User user = baseMapper.selectById(userId);
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getEmail, email);
+        User user = getOne(queryWrapper);
         if (user == null) {
-            log.info("更新用户信息失败：用户不存在，用户ID={}", userId);
-            throw new BusinessException(ErrorCode.INVALID_PARAMS, "用户不存在");
-        }
-        // 2. 业务校验：邮箱是否匹配（依赖用户信息，核心业务规则）
-        if (!user.getEmail().equals(email)) {
-            log.info("更新用户信息失败：邮箱不匹配，用户ID={}", userId);
-            throw new BusinessException(ErrorCode.INVALID_PARAMS, "邮箱不匹配");
+            log.info("更新用户信息失败：邮箱不存在，邮箱={}",email);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "邮箱未注册");
         }
 
-        // 3. 业务校验：验证码有效性（依赖验证码工具，核心业务）
+        // 2. 业务校验：验证码有效性（依赖验证码工具，核心业务）
         if (!verificationCodeUtil.validateCode(email, resetPasswordDto.getCode())) {
             log.info("重置密码失败：验证码无效，邮箱={}", email);
             throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码错误或已过期");
         }
 
-        // 4. 业务校验：新密码是否与旧密码相同（安全增强，依赖数据库）
+        // 3. 业务校验：新密码是否与旧密码相同（安全增强，依赖数据库）
         if (BCrypt.checkpw(newPassword, user.getPassword())) {
             log.info("重置密码失败：新密码与旧密码相同，用户ID={}", user.getUserId());
             throw new BusinessException(ErrorCode.INVALID_PARAMS, "新密码不能与旧密码相同");
         }
 
-        // 5. 核心逻辑：更新密码并记录时间
+        // 4. 核心逻辑：更新密码并记录时间
         user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
         user.setUpdateTime(new Date());
         boolean updateSuccess = updateById(user);
@@ -222,6 +248,58 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
 
         log.info("重置密码成功，用户ID={}", user.getUserId());
+    }
+
+    @Override
+    public void updatePasswordWithCodeAndOldPwd(Long userId, UpdatePasswordDto updatePasswordDto) {
+        String email = updatePasswordDto.getEmail();
+        String code = updatePasswordDto.getCode();
+        String oldPassword = updatePasswordDto.getOldPassword();
+        String newPassword = updatePasswordDto.getNewPassword();
+
+        // 1. 查询用户信息
+        User user = baseMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND, "用户不存在");
+        }
+
+        // 2. 验证邮箱与用户绑定邮箱一致
+        if (!email.equals(user.getEmail())) {
+            log.warn("邮箱不匹配，userId={}，输入邮箱={}", userId, email);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "邮箱与账号绑定邮箱不一致");
+        }
+
+        // 3. 验证验证码有效性
+        if (!verificationCodeUtil.validateCode(email, code)) {
+            log.info("验证码无效，userId={}，邮箱={}", userId, email);
+            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码错误或已过期");
+        }
+
+        // 4. 验证旧密码正确
+        if (!BCrypt.checkpw(oldPassword, user.getPassword())) {
+            log.warn("旧密码错误，userId={}", userId);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "旧密码错误");
+        }
+
+        // 5. 验证新密码与旧密码不同
+        if (newPassword.equals(oldPassword)) {
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "新密码不能与旧密码相同");
+        }
+
+        // 6. 加密并更新新密码
+        String encryptedNewPwd = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+        user.setPassword(encryptedNewPwd);
+        user.setUpdateTime(new Date());
+        boolean updateSuccess = updateById(user);
+        if (!updateSuccess) {
+            log.info("重置密码失败：数据库更新异常，用户ID={}", user.getUserId());
+            throw new BusinessException(ErrorCode.RESET_DB_UPDATE_FAIL, "重置密码失败，请稍后重试");
+        }
+
+
+        // 7. 验证码使用后失效（防止重复使用）
+        verificationCodeUtil.clearCode(email);
+        log.info("密码修改成功，userId={}", userId);
     }
 
     /**

@@ -15,10 +15,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -97,7 +99,7 @@ public class AuthController {
     }
 
     @PostMapping("/send-verification-code")
-    @ApiOperation("发送重置密码验证码")
+    @ApiOperation("发送重置密码验证码(未登录态)")
     public Result<SendCodeVo> sendVerificationCode(@Valid @RequestBody SendCodeDto sendCodeDto) {
         String email = sendCodeDto.getEmail();
 
@@ -118,11 +120,28 @@ public class AuthController {
         return Result.success(sendCodeVo);
     }
 
+    @PostMapping("/send-verify-code")
+    @ApiOperation("发送密码修改验证码(登录状态)")
+    public Result<Void> sendUpdatePwdCode(HttpServletRequest request,@Valid @RequestBody SendCodeDto sendCodeDto) {
+        //获取输入的email
+        String email = sendCodeDto.getEmail();
+
+        // 1. 校验发送频率（防止恶意刷验证码，轻量逻辑适合Controller层）
+        if (!verificationCodeUtil.checkSendFrequency(email)) {
+            log.info("验证码发送过于频繁，邮箱={}", email);
+            throw new BusinessException(ErrorCode.VERIFY_CODE_INVALID, "验证码发送过于频繁，请60秒后再试");
+        }
+
+        // 2. 调用Service处理核心业务（依赖数据库的校验和发送逻辑）
+        Long userId = (Long) request.getAttribute("userId");
+        userService.sendUpdatePwdVerifyCode(userId, email);
+        return Result.success();
+    }
+
     @PostMapping("/reset-password")
     @ApiOperation("重置密码")
-    public Result<Void> resetPassword(HttpServletRequest request,@Valid @RequestBody ResetPasswordDto resetPasswordDto) {
+    public Result<Void> resetPassword(@Valid @RequestBody ResetPasswordDto resetPasswordDto) {
         log.info("接收到用户更改密码的请求，参数：{}", resetPasswordDto);
-        Long userId = (Long) request.getAttribute("userId");
         // 1. 跨字段校验：新密码与确认密码一致性（简单逻辑，适合Controller层）
         if (!resetPasswordDto.getNewPassword().equals(resetPasswordDto.getConfirmPassword())) {
             throw new BusinessException(ErrorCode.INVALID_PARAMS, "两次输入的密码不一致");
@@ -134,7 +153,23 @@ public class AuthController {
         }
 
         // 3. 调用Service处理核心业务（依赖数据库和验证码校验）
-        userService.resetPassword(userId,resetPasswordDto);
+        userService.resetPassword(resetPasswordDto);
+        return Result.success();
+    }
+
+    @PostMapping("/update-password")
+    @ApiOperation("登录状态下修改密码")
+    public Result<Void> updatePassword(HttpServletRequest request, @Validated @RequestBody UpdatePasswordDto updatePasswordDto) {
+        Long userId = (Long) request.getAttribute("userId");
+        log.info("用户修改密码，userId={}，邮箱={}", userId, updatePasswordDto.getEmail());
+
+        // 跨字段校验：新密码与确认密码一致
+        if (!updatePasswordDto.getNewPassword().equals(updatePasswordDto.getConfirmPassword())) {
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "两次输入的密码不一致");
+        }
+
+        // 调用Service处理核心逻辑（邮箱验证码+旧密码）
+        userService.updatePasswordWithCodeAndOldPwd(userId, updatePasswordDto);
         return Result.success();
     }
 

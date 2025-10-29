@@ -37,17 +37,31 @@ public interface UserService extends IService<User> {
     void logout(String token);
 
     /**
-     * 发送验证码
+     * 发送重置密码验证码
      * @param email 用户邮箱
      */
     void sendVerificationCode(String email);
 
     /**
+     * 发送更新密码验证码
+     * @param userId 用户ID
+     * @param email 用户邮箱
+     */
+    void sendUpdatePwdVerifyCode(Long userId, String email);
+
+    /**
      * 重置密码
      * @param resetPasswordDto 重置密码信息
      */
-    void resetPassword(Long userId,ResetPasswordDto resetPasswordDto);
+    void resetPassword(ResetPasswordDto resetPasswordDto);
 
+
+    /**
+     * 更新密码
+     * @param userId 用户ID
+     * @param updatePasswordDto 更新的密码信息
+     */
+    void updatePasswordWithCodeAndOldPwd(Long userId, UpdatePasswordDto updatePasswordDto);
 
     /**
      * 更新用户信息
