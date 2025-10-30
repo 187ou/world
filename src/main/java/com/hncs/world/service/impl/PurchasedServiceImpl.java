@@ -62,11 +62,11 @@ public class PurchasedServiceImpl extends ServiceImpl<PurchasedMapper, Purchased
         }
 
         // Json串反序列为List
-        List<Long> purchasedBookIdList = GSON.fromJson(purchased.getPurchasedBook(), new TypeToken<List<Long>>(){});
+        List<String> purchasedBookNameList = GSON.fromJson(purchased.getPurchasedBook(), new TypeToken<List<String>>(){});
 
         // 通过bookId查询小说
         QueryWrapper<Book> bookQueryWrapper = new QueryWrapper<>();
-        bookQueryWrapper.in("id", purchasedBookIdList);
+        bookQueryWrapper.in("book_name", purchasedBookNameList);
         List<Book> bookList = bookServiceImpl.list(bookQueryWrapper);
 
         // 封装成BookVo
@@ -99,8 +99,23 @@ public class PurchasedServiceImpl extends ServiceImpl<PurchasedMapper, Purchased
         queryWrapper1.eq("user_id", userId);
         Purchased purchased = this.getOne(queryWrapper1);
 
-        //判断用户购买记录是否存在
+        //查询小说是否存在数据库
+        Book book = bookServiceImpl.getOne(new
+                QueryWrapper<Book>().eq("book_name", userPurchasedBookDto.getBookName()));
+
+        //不存在则加入数据库
+        if(book == null){
+            book = new Book();
+            book.setBookName(userPurchasedBookDto.getBookName());
+            book.setBookLink(userPurchasedBookDto.getBookLink());
+            bookServiceImpl.save(book);
+        }
+
+        //判断用户购买记录是否存在，不存在则创建，并记录
+        boolean isExist = true;
+
         if(purchased == null){
+            isExist = false;
             purchased = new Purchased();
             purchased.setUserId(userId);
         }
@@ -136,7 +151,13 @@ public class PurchasedServiceImpl extends ServiceImpl<PurchasedMapper, Purchased
 
         //更新用户已购记录
         purchased.setPurchasedBook(GSON.toJson(purchasedBooks));
-        this.updateById(purchased);
+
+        //用户购买记录存在数据库则更新，不存在则插入
+        if(isExist){
+            this.updateById(purchased);
+        }else{
+            this.save(purchased);
+        }
 
         return balance;
     }

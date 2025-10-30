@@ -7,9 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.hncs.world.common.ErrorCode;
 import com.hncs.world.exception.BusinessException;
 import com.hncs.world.pojo.dto.UserCollectBookDto;
-import com.hncs.world.pojo.dto.UserPurchasedBookDto;
 import com.hncs.world.pojo.entity.Book;
-import com.hncs.world.pojo.entity.User;
 import com.hncs.world.pojo.vo.BookVo;
 import com.hncs.world.pojo.vo.BookOpenVo;
 import com.hncs.world.pojo.vo.BookPreviewVo;
@@ -23,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
