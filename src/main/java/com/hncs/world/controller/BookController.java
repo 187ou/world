@@ -7,6 +7,7 @@ import com.hncs.world.exception.BusinessException;
 import com.hncs.world.pojo.dto.BookOpenDto;
 import com.hncs.world.pojo.dto.BookPreviewDto;
 import com.hncs.world.pojo.dto.UserCollectBookDto;
+import com.hncs.world.pojo.dto.UserPurchasedBookDto;
 import com.hncs.world.pojo.vo.BookVo;
 import com.hncs.world.pojo.vo.BookOpenVo;
 import com.hncs.world.pojo.vo.BookPreviewVo;
@@ -148,5 +149,40 @@ public class BookController {
         bookServiceImpl.bookCollectAdd(userId,userCollectBookDto);
 
         return Result.success();
+    }
+
+    @PostMapping("/collect/remove")
+    @ApiOperation("删除小说收藏接口")
+    public Result<Void> bookCollectRemove(@RequestBody UserCollectBookDto userCollectBookDto, HttpServletRequest request){
+        if(userCollectBookDto == null){
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "book is empty");
+        }
+        // 通过request获取用户ID
+        Long userId = (Long) request.getAttribute("userId");
+
+        bookServiceImpl.bookCollectRemove(userId,userCollectBookDto);
+
+        return Result.success();
+    }
+
+    /**
+     * 添加已购小说接口
+     * @param userPurchasedBookDto 要购买的小说信息
+     * @param request 请求
+     * @return 用户剩余金额
+     */
+    @PostMapping("/purchased/add")
+    @ApiOperation("添加购买小说接口")
+    public Result<Integer> bookPurchasedAdd(@RequestBody UserPurchasedBookDto userPurchasedBookDto, HttpServletRequest request){
+        if(userPurchasedBookDto == null){
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "book is empty");
+        }
+
+        // 通过request获取用户ID
+        Long userId = (Long) request.getAttribute("userId");
+
+        Integer balance = purchasedServiceImpl.bookPurchasedAdd(userId,userPurchasedBookDto);
+
+        return Result.success(1);
     }
 }

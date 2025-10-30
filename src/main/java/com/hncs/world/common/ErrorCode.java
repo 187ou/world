@@ -29,7 +29,11 @@ public enum ErrorCode {
     PY_NOT_FOUND(500001, "Python脚本未找到"),
     PY_PARSE_ERROR(500002, "Python解析错误"),
     PY_RETURN_EMPTY(500003, "Python返回数据为空"),
-    PY_EXECUTE_FAILED(500004, "Python执行失败");
+    PY_EXECUTE_FAILED(500004, "Python执行失败"),
+    USER_COLLECT_ERROR(500005, "用户收藏相关操作错误"),
+    USER_MONEY_NOT_ENOUGH( 500006, "用户余额不足"),
+    USER_PURCHASED_BOOK_EXIST(500007, "用户已购买该小说");
+
 
 
     private final int code;

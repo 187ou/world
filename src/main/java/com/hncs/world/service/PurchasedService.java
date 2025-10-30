@@ -1,5 +1,6 @@
 package com.hncs.world.service;
 
+import com.hncs.world.pojo.dto.UserPurchasedBookDto;
 import com.hncs.world.pojo.entity.Purchased;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hncs.world.pojo.vo.BookVo;
@@ -19,4 +20,12 @@ public interface PurchasedService extends IService<Purchased> {
      * @return 已购小说列表
      */
     List<BookVo> bookPurchased(Long userId);
+
+    /**
+     * 添加已购小说接口
+     * @param userPurchasedBookDto 要购买的小说信息
+     * @param userId 用户ID
+     * @return 用户剩余金额
+     */
+    Integer bookPurchasedAdd(Long userId, UserPurchasedBookDto userPurchasedBookDto);
 }

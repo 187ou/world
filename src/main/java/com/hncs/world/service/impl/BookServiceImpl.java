@@ -7,7 +7,9 @@ import com.google.gson.reflect.TypeToken;
 import com.hncs.world.common.ErrorCode;
 import com.hncs.world.exception.BusinessException;
 import com.hncs.world.pojo.dto.UserCollectBookDto;
+import com.hncs.world.pojo.dto.UserPurchasedBookDto;
 import com.hncs.world.pojo.entity.Book;
+import com.hncs.world.pojo.entity.User;
 import com.hncs.world.pojo.vo.BookVo;
 import com.hncs.world.pojo.vo.BookOpenVo;
 import com.hncs.world.pojo.vo.BookPreviewVo;
@@ -21,10 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +40,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
     implements BookService{
+
+    // Gson, 序列化工具
+    private static final Gson GSON = new Gson();
 
     /**
      * 小说搜索
@@ -182,7 +189,6 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
 
         //预设书籍
         Book book;
-        Gson gson = new Gson();
 
         //判断书籍是否存在
         QueryWrapper<Book> queryWrapper = new QueryWrapper<>();
@@ -194,10 +200,16 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
             String linkUser = book.getLinkUser();
 
             //Json反序列化，添加联系用户id
-            List<String> userIds = gson.fromJson(linkUser, new TypeToken<List<String>>(){});
+            Set<String> userIds = GSON.fromJson(linkUser, new TypeToken<Set<String>>(){});
+
+            //判断用户是否已收藏
+            if(userIds.contains(userId.toString())){
+                throw new BusinessException(ErrorCode.USER_COLLECT_ERROR, "用户已收藏该书籍");
+            }
             userIds.add(userId.toString());
+
             //Json序列化
-            book.setLinkUser(gson.toJson(userIds));
+            book.setLinkUser(GSON.toJson(userIds));
         }else{
             //构建书籍
             book = new Book();
@@ -205,13 +217,47 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
             book.setBookLink(userCollectBookDto.getBookLink());
 
             //添加联系用户id
-            List<String> userIds = new ArrayList<>();
+            Set<String> userIds = new HashSet<>();
             userIds.add(userId.toString());
+
             //Json序列化
-            book.setLinkUser(gson.toJson(userIds));
+            book.setLinkUser(GSON.toJson(userIds));
         }
 
         this.saveOrUpdate(book);
+    }
+
+    /**
+     * 用户取消收藏小说
+     *
+     * @param userId 用户id
+     * @param userCollectBookDto 收藏书籍信息
+     */
+    @Override
+    public void bookCollectRemove(Long userId, UserCollectBookDto userCollectBookDto) {
+        if(userId == null){
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "userId is empty");
+        }
+
+        //获取小说信息
+        QueryWrapper<Book> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("book_name", userCollectBookDto.getBookName());
+        Book book = this.getOne(queryWrapper);
+
+        if(book == null){
+            throw new BusinessException(ErrorCode.USER_COLLECT_ERROR, "书籍信息为空");
+        }
+
+        //Json反序列化，获取并处理小说关联用户信息
+        String linkUser = book.getLinkUser();
+        Set<String> userIds = GSON.fromJson(linkUser, new TypeToken<Set<String>>(){});
+
+        //删除用户关联记录，并更新小说
+        userIds.remove(userId.toString());
+        book.setLinkUser(GSON.toJson(userIds));
+
+        //更新小说
+        this.updateById(book);
     }
 }
 
