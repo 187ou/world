@@ -405,6 +405,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return userVo;
     }
 
+    /**
+     * 更新邮箱
+     * @param userId 用户ID
+     * @param updateEmailDto 更新邮箱的参数
+     */
     @Override
     public void updateEmail(Long userId, UpdateEmailDto updateEmailDto) {
         // 1. 获取参数

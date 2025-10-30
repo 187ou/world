@@ -10,7 +10,7 @@ import lombok.Data;
  * 用户阅读记录表
  * @TableName read
  */
-@TableName(value ="read")
+@TableName(value ="`read`")
 @Data
 public class Read {
     /**

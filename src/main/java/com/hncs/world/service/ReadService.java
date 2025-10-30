@@ -1,7 +1,9 @@
 package com.hncs.world.service;
 
+import com.hncs.world.pojo.dto.SaveRecordDto;
 import com.hncs.world.pojo.entity.Read;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hncs.world.pojo.vo.ReadRecordVo;
 
 /**
 * @author 24774
@@ -10,4 +12,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface ReadService extends IService<Read> {
 
+    ReadRecordVo getBookReadRecord(String  token);
+
+    Integer saveBookReadRecord(String  token, SaveRecordDto saveRecordDto);
 }

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -273,8 +273,9 @@ public class AuthController {
     @PutMapping("/update-email")
     @ApiOperation("更新用户邮箱")
     public Result<Void> updateUserEmail( HttpServletRequest request,@Valid @RequestBody UpdateEmailDto updateEmailDto) {
+        // 1. 从拦截器传递的request中获取当前登录用户的ID（无需前端传参）
         Long userId = (Long) request.getAttribute("userId");
-
+        // 2. 调用Service处理核心业务
         userService.updateEmail(userId,updateEmailDto);
 
         return Result.success();

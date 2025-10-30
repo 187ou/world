@@ -2,14 +2,13 @@ package com.hncs.world.pojo.vo;
 
 import lombok.Data;
 
-import java.util.Date;
-
 /**
- * 小说返回类
+ * 小说记录返回类
  **/
 @Data
-public class BookVo {
+public class ReadRecordVo {
     private String bookName;
     private String bookLink;
-    private Date updateTime;
+    private String chapterLink;
+    private int number;
 }

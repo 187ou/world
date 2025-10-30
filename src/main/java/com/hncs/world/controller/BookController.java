@@ -4,23 +4,20 @@ import com.hncs.world.common.ErrorCode;
 import com.hncs.world.common.Result;
 import com.hncs.world.common.UnifyList;
 import com.hncs.world.exception.BusinessException;
-import com.hncs.world.pojo.dto.BookOpenDto;
-import com.hncs.world.pojo.dto.BookPreviewDto;
-import com.hncs.world.pojo.dto.UserCollectBookDto;
-import com.hncs.world.pojo.dto.UserPurchasedBookDto;
-import com.hncs.world.pojo.vo.BookVo;
-import com.hncs.world.pojo.vo.BookOpenVo;
-import com.hncs.world.pojo.vo.BookPreviewVo;
-import com.hncs.world.pojo.vo.BookSearchVo;
+import com.hncs.world.pojo.dto.*;
+import com.hncs.world.pojo.vo.*;
 import com.hncs.world.service.impl.BookServiceImpl;
 import com.hncs.world.service.impl.PurchasedServiceImpl;
+import com.hncs.world.service.impl.ReadServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -34,6 +31,8 @@ public class BookController {
     @Resource
     private PurchasedServiceImpl purchasedServiceImpl;
 
+    @Autowired
+    private ReadServiceImpl readServiceImpl;
     /**
      * 小说搜索接口
      * @param bookName 小说关键词
@@ -183,6 +182,46 @@ public class BookController {
 
         Integer balance = purchasedServiceImpl.bookPurchasedAdd(userId,userPurchasedBookDto);
 
+        return Result.success(1);
+    }
+
+    @PostMapping("/read-record")
+    @ApiOperation("获取小说阅读记录")
+    public Result<ReadRecordVo> bookReadRecord(@Valid @RequestBody ReadRecordDto readRecordDto, HttpServletRequest request){
+        // 通过request获取用户ID
+        Long userId = (Long) request.getAttribute("userId");
+
+        String bookName =readRecordDto.getBookName();
+
+        String token=userId+"_"+bookName;
+
+        ReadRecordVo readRecordVo= readServiceImpl.getBookReadRecord(token);
+
+        if(readRecordVo==null){
+            log.info("用户没有阅读这本小说，用户ID={}", userId);
+            throw new BusinessException(ErrorCode.INVALID_PARAMS, "用户未阅读过该小说");
+        }
+
+        return Result.success(readRecordVo);
+    }
+
+    @PostMapping("/saver-record")
+    @ApiOperation("保存小说阅读记录")
+    public Result<Integer> saveReadRecord(@Valid @RequestBody SaveRecordDto saveRecordDto, HttpServletRequest request){
+        // 通过request获取用户ID
+        Long userId = (Long) request.getAttribute("userId");
+
+        String bookName =saveRecordDto.getBookName();
+
+        String token=userId+"_"+bookName;
+
+        Integer code= readServiceImpl.saveBookReadRecord(token,saveRecordDto);
+
+        if(code==0){
+            log.info("保存记录失败，用户ID={}", userId);
+            throw new BusinessException(ErrorCode.SERVER_ERROR, "保存记录失败");
+        }
+        log.info("保存记录成功，用户ID={}", userId);
         return Result.success(1);
     }
 }
