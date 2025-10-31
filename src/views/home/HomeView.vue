@@ -16,6 +16,9 @@
           :recentDocuments="recentDocuments"
           :starredDocuments="starredDocuments"
           :purchasedDocuments="purchasedDocuments"
+          :on-recent-tab-click="fetchRecentlyReadNovels"
+          :on-starred-tab-click="fetchCollectedNovels"
+          :on-purchased-tab-click="fetchPurchasedNovels"
         />
       </main>
     </div>

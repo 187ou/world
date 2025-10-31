@@ -1,6 +1,6 @@
 <template>
   <section class="document-section">
-    <a-tabs v-model:activeKey="activeTabKey" class="mb-6">
+    <a-tabs v-model:activeKey="activeTabKey" class="mb-6" @change="onTabChange">
       <template #rightExtra>
         <a-input-search
           v-model:value="searchQuery"
@@ -144,16 +144,46 @@ import starIcon from '@/assets/home/收藏.png'
 import buyIcon from '@/assets/home/购买.png'
 import { useUserStore } from '@/stores/user.ts'
 import { addBookCollection, purchaseBook, removeBookCollection } from '@/apis/modules/bookApi.ts'
+import type { Key } from 'ant-design-vue/lib/table/interface'
 
 const router = useRouter()
 
 const userStore = useUserStore()
-const activeTabKey = ref('recent')
+const activeTabKey = ref<Key>('recent')
 const searchQuery = ref('')
 const previewModalVisible = ref(false)
 const currentPreviewUrl = ref('')
 const purchaseModalVisible = ref(false)
 const currentDoc = ref<DocumentItem | null>(null)
+
+const props = defineProps<{
+  recentDocuments: DocumentItem[]
+  starredDocuments: DocumentItem[]
+  purchasedDocuments: DocumentItem[]
+  onRecentTabClick?: () => void
+  onStarredTabClick?: () => void
+  onPurchasedTabClick?: () => void
+}>()
+
+const onTabChange = (activeKey: Key) => {
+  switch (activeKey) {
+    case 'recent':
+      if (props.onRecentTabClick) {
+        props.onRecentTabClick()
+      }
+      break
+    case 'starred':
+      if (props.onStarredTabClick) {
+        props.onStarredTabClick()
+      }
+      break
+    case 'purchased':
+      if (props.onPurchasedTabClick) {
+        props.onPurchasedTabClick()
+      }
+      break
+  }
+}
 
 const onSearch = (searchValue: string) => {
   console.log('当前内容：', searchValue)
@@ -176,12 +206,6 @@ interface DocumentItem {
   modified: string
   previewUrl?: string
 }
-
-const { recentDocuments, starredDocuments, purchasedDocuments } = defineProps<{
-  recentDocuments: DocumentItem[]
-  starredDocuments: DocumentItem[]
-  purchasedDocuments: DocumentItem[]
-}>()
 
 const showPurchaseModal = (doc: DocumentItem) => {
   currentDoc.value = doc
@@ -219,8 +243,6 @@ const confirmPurchase = async () => {
 
       if (response) {
         message.success('购买成功')
-        window.dispatchEvent(new Event('refreshPurchases'))
-        window.location.reload();
       } else {
         message.error('购买失败')
       }
@@ -250,9 +272,6 @@ const handleCollect = async (doc: DocumentItem) => {
     const response = await addBookCollection(collectionData)
     if (response) {
       message.success('收藏成功')
-      // 刷新收藏列表
-      window.dispatchEvent(new Event('refreshCollections'))
-      window.location.reload();
     } else {
       message.error('收藏失败')
     }
@@ -273,8 +292,6 @@ const handleRemoveCollect = async (doc: DocumentItem) => {
     const response = await removeBookCollection(collectionData)
     if (response) {
       message.success('取消收藏成功')
-      // 刷新收藏列表
-      window.dispatchEvent(new Event('refreshCollections'))
     } else {
       message.error('取消收藏失败')
     }
