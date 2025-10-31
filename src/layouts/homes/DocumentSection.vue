@@ -11,7 +11,11 @@
       </template>
 
       <a-tab-pane key="recent" tab="最近文档">
+        <div v-if="!recentDocuments || recentDocuments.length === 0" class="empty-state">
+          <a-empty description="暂无最近文档" />
+        </div>
         <DocumentList
+          v-else
           :documents="recentDocuments"
           :icon-src="docIcon"
           icon-alt="文档图标"
@@ -37,7 +41,11 @@
       </a-tab-pane>
 
       <a-tab-pane key="starred" tab="文档收藏">
+        <div v-if="!starredDocuments || starredDocuments.length === 0" class="empty-state">
+          <a-empty description="暂无收藏文档" />
+        </div>
         <DocumentList
+          v-else
           :documents="starredDocuments"
           :icon-src="starIcon"
           icon-alt="收藏图标"
@@ -63,7 +71,11 @@
       </a-tab-pane>
 
       <a-tab-pane key="purchased" tab="我的购买">
+        <div v-if="!purchasedDocuments || purchasedDocuments.length === 0" class="empty-state">
+          <a-empty description="暂无购买文档" />
+        </div>
         <DocumentList
+          v-else
           :documents="purchasedDocuments"
           :icon-src="buyIcon"
           icon-alt="购买图标"
@@ -121,7 +133,9 @@ import {
   Tabs as ATabs,
   TabPane as ATabPane,
   InputSearch as AInputSearch,
-  Modal as AModal, message,
+  Modal as AModal,
+  message,
+  Empty as AEmpty
 } from 'ant-design-vue'
 import PreviewModal from '@/components/common/PreviewModal.vue'
 import DocumentList from '@/components/home/DocumentList.vue'
@@ -206,6 +220,7 @@ const confirmPurchase = async () => {
       if (response) {
         message.success('购买成功')
         window.dispatchEvent(new Event('refreshPurchases'))
+        window.location.reload();
       } else {
         message.error('购买失败')
       }
@@ -237,6 +252,7 @@ const handleCollect = async (doc: DocumentItem) => {
       message.success('收藏成功')
       // 刷新收藏列表
       window.dispatchEvent(new Event('refreshCollections'))
+      window.location.reload();
     } else {
       message.error('收藏失败')
     }
@@ -301,6 +317,25 @@ const handleRemoveCollect = async (doc: DocumentItem) => {
 
     button {
       margin-left: 12px;
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+
+  :deep(.ant-empty) {
+    .ant-empty-image {
+      height: 80px;
+      margin-bottom: 16px;
+    }
+
+    .ant-empty-description {
+      color: #666;
+      font-size: 14px;
     }
   }
 }

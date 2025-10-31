@@ -28,6 +28,7 @@
           <NewsHotspots
             v-else
             :hotspots="item.newsHotspots || []"
+            :book-name="item.name"
             @open-preview="(h: NewsHotspot) => $emit('open-preview', h)"
           />
         </div>

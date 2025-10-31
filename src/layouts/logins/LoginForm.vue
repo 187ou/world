@@ -3,7 +3,7 @@
     <FormInput
       label="用户名"
       v-model="form.username"
-      type="password"
+      type="text"
       placeholder="Username"
     />
 

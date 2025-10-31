@@ -81,7 +81,7 @@ export const getCurrentUserInfo = async () => {
  * @returns 发送结果数据
  */
 export const sendUpdatePwdCode = async (sendCodeDto: { email: string }) => {
-  return await http.post('/send-verify-code', sendCodeDto);
+  return await http.post('/api/auth/send-verify-code', sendCodeDto);
 };
 
 /**
@@ -90,5 +90,5 @@ export const sendUpdatePwdCode = async (sendCodeDto: { email: string }) => {
  * @returns 修改结果数据
  */
 export const updatePassword = async (updatePasswordDto: ResetPasswordDto) => {
-  return await http.post('/update-password', updatePasswordDto);
+  return await http.post('/api/auth/update-password', updatePasswordDto);
 };

@@ -121,37 +121,7 @@ const templates = [
 ]
 
 // 最近文档数据
-const recentDocuments = ref([
-  {
-    name: '2023年度市场分析报告.docx',
-    path: 'OneDrive > 市场部 > 年度报告',
-    modified: '今天 14:30',
-    starred: true,
-    previewUrl: 'https://search.bilibili.com/all?keyword=%E7%83%9F%E8%8A%B1%E6%98%93%E5%86%B7&from_source=webtop_search&spm_id_from=333.1007&search_source=2',
-  },
-  {
-    name: '产品开发会议纪要.docx',
-    path: '本地 > 工作 > 会议记录',
-    modified: '昨天 10:15',
-    starred: false,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
-  },
-  {
-    name: '新员工入职指南.docx',
-    path: 'SharePoint > 人力资源 > 培训',
-    modified: '2023/11/28 09:45',
-    starred: true,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
-  },
-  {
-    name: '客户反馈汇总分析.docx',
-    path: 'OneDrive > 客户服务 > 分析',
-    modified: '2023/11/25 16:20',
-    starred: false,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
-  },
-])
-
+const recentDocuments = ref([])
 const fetchRecentlyReadNovels = async () => {
   try {
     const response = await getRecentlyReadBooks()
@@ -174,23 +144,7 @@ const fetchRecentlyReadNovels = async () => {
 }
 
 // 我的收藏文档数据
-const starredDocuments = ref([
-  {
-    name: '重要项目计划书.docx',
-    path: 'OneDrive > 项目部 > 核心文件',
-    modified: '2023/12/01 09:00',
-    starred: true,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
-  },
-  {
-    name: '年度总结报告.pptx',
-    path: '本地 > 个人文件 > 报告',
-    modified: '2023/11/30 17:00',
-    starred: true,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
-  },
-])
-
+const starredDocuments = ref([])
 const fetchCollectedNovels = async () => {
   try {
     const response = await getBookCollection()
@@ -213,27 +167,7 @@ const fetchCollectedNovels = async () => {
 }
 
 // 最近购买文档数据
-const purchasedDocuments = ref([
-  {
-    name: 'Vue.js 3 实战.pdf',
-    path: '本地 > 学习 > 前端',
-    modified: '今天 09:00',
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
-  },
-  {
-    name: '深入理解 TypeScript.epub',
-    path: 'OneDrive > 学习 > 编程',
-    modified: '昨天 15:00',
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
-  },
-  {
-    name: '设计模式精讲.mobi',
-    path: 'SharePoint > 学习 > 架构',
-    modified: '2023/11/29 11:00',
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
-  },
-])
-
+const purchasedDocuments = ref([])
 const fetchPurchasedNovels = async () => {
   try {
     const response = await getPurchasedBooks()

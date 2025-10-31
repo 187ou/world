@@ -16,14 +16,13 @@
         </a-button>
         <a-button
           type="link"
-          class="action-btn open-btn"
-          @click="openDocument(hotspot.url, index)"
+          class="action-btn collect-btn"
+          @click="collectDocument(hotspot.url, index)"
         >
-          打开
+          收藏
         </a-button>
       </div>
     </div>
-
 
     <a-pagination
       v-if="totalData.length > pageSize"
@@ -37,9 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import { Button as AButton, Pagination as APagination } from 'ant-design-vue'
+import { Button as AButton, Pagination as APagination, message } from 'ant-design-vue'
 import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { addBookCollection } from '@/apis/modules/bookApi.ts'
 
 interface NewsHotspot {
   title: string
@@ -48,21 +47,8 @@ interface NewsHotspot {
 
 const props = defineProps<{
   hotspots?: NewsHotspot[]
+  bookName: string
 }>()
-
-const router = useRouter()
-
-const openDocument = (url: string, index: number) => {
-  if (!url.trim()) {
-    console.warn('无效的链接地址');
-    return;
-  }
-  router.push({ path: '/inner', query: {
-      url,
-      length: totalData.value.length,
-      chapterIndex: index + (currentPage.value - 1) * pageSize,
-    }, });
-};
 
 const pageSize = 10
 const currentPage = ref(1)
@@ -77,6 +63,26 @@ const currentPageData = computed(() => {
 
 const handlePageChange = (page: number) => {
   currentPage.value = page
+}
+
+const collectDocument = async (url: string, index: number) => {
+  try {
+    const currentIndex = index + (currentPage.value - 1) * pageSize
+    const title = totalData.value[currentIndex]?.title || '未知文档'
+    console.log(`开始收藏《${title}》的书籍《${props.bookName}》`)
+
+    const response = await addBookCollection({
+      bookName: props.bookName,
+      bookLink: url
+    })
+
+    if (response) {
+      message.success('收藏成功')
+    }
+  } catch (error) {
+    console.error('收藏失败:', error)
+    message.error('收藏失败')
+  }
 }
 
 const mockHotspots: NewsHotspot[] = [
@@ -95,9 +101,9 @@ const mockHotspots: NewsHotspot[] = [
 
 watch(totalData, (newVal, oldVal) => {
   if (newVal.length !== oldVal.length) {
-    currentPage.value = 1;
+    currentPage.value = 1
   }
-});
+})
 </script>
 
 <style scoped lang="scss">
@@ -150,11 +156,11 @@ watch(totalData, (newVal, oldVal) => {
   }
 }
 
-.open-btn {
-  color: #666;
+.collect-btn {
+  color: #faad14;
 
   &:hover {
-    color: #333;
+    color: #d48806;
     background-color: transparent;
   }
 }

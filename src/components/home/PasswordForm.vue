@@ -144,11 +144,6 @@ const changePassword = async () => {
     message.warning('密码强度较弱，建议使用更复杂的密码')
   }
 
-  if (!captcha.value || !captcha.value.validate(passwordForm.value.captchaInput)) {
-    message.error('验证码不正确')
-    return
-  }
-
   // 准备重置密码的数据
   const resetData: ResetPasswordDto = {
     email: passwordForm.value.email,
