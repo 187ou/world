@@ -191,9 +191,9 @@ public class BookController {
         // 通过request获取用户ID
         Long userId = (Long) request.getAttribute("userId");
 
-        String bookName =readRecordDto.getBookName();
+        String bookLink =readRecordDto.getBookLink();
 
-        String token=userId+"_"+bookName;
+        String token=userId+"_"+bookLink;
 
         ReadRecordVo readRecordVo= readServiceImpl.getBookReadRecord(token);
 

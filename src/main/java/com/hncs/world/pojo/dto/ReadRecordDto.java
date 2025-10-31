@@ -6,6 +6,6 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 public class ReadRecordDto {
-    @NotBlank(message = "bookName不能为空")
-    private String bookName;
+    @NotBlank(message = "bookLink不能为空")
+    private String bookLink;
 }
