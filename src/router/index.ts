@@ -4,6 +4,7 @@ import InnerView from '@/views/inner/InnerView.vue'
 import LoginView from '@/views/login/LoginView.vue'
 import NotFound from '@/views/NotFound.vue'
 import TestView from '@/test/TestView.vue'
+import { useUserStore } from '@/stores/user.ts'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,7 +46,11 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem('token')
+  // 判断是否需要登录（结合 LocalStorage 和 SessionStorage ）
+  const useStore = useUserStore()
+  const userStore = useStore.getUser()
+  const token = useStore.getToken()
+  const isAuthenticated = !!token && !!userStore
 
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')

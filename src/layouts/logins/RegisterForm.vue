@@ -73,7 +73,7 @@ import FormInput from '@/components/logins/FromInput.vue'
 import FormButton from '@/components/logins/FromButton.vue'
 import FormLink from '@/components/logins/FromLink.vue'
 import VerificationCode from '@/components/logins/VerificationCode.vue'
-import { register } from '@/apis/api.ts'
+import { register } from '@/apis'
 import type { UserRegisterDto } from '@/types/userRegisterDto.ts'
 import { message } from 'ant-design-vue'
 

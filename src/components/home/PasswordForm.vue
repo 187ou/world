@@ -39,7 +39,7 @@
       >
         <template #captcha>
           <VerificationCode
-            :mode="0"
+            :mode="2"
             :email="passwordForm.email"
           />
         </template>
@@ -74,7 +74,7 @@ import CaptchaCanvas from '@/components/common/CaptchaCanvas.vue'
 import { formFilters } from '@/filters/formFilters'
 import FormInput from '@/components/logins/FromInput.vue'
 import VerificationCode from '@/components/logins/VerificationCode.vue'
-import { resetPassword } from '@/apis/api.ts'
+import { updatePassword } from '@/apis'
 import type { ResetPasswordDto } from '@/types/resetPasswordDto.ts'
 
 const passwordForm = ref({
@@ -154,12 +154,13 @@ const changePassword = async () => {
     email: passwordForm.value.email,
     code: passwordForm.value.code,
     newPassword: passwordForm.value.newPassword,
-    confirmPassword: passwordForm.value.confirmPassword
+    confirmPassword: passwordForm.value.confirmPassword,
+    oldPassword: passwordForm.value.oldPassword
   }
 
   try {
-    const response = await resetPassword(resetData)
-    if (response.data.code === 200) {
+    const response = await updatePassword(resetData)
+    if (response) {
       message.success('密码修改成功')
       passwordForm.value = {
         oldPassword: '',
@@ -170,7 +171,7 @@ const changePassword = async () => {
         code: ''
       }
     } else {
-      message.error(response.data.message || '密码修改失败')
+      message.error('密码修改失败')
     }
   } catch (error) {
     console.error(error)

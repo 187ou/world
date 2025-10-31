@@ -2,7 +2,9 @@
   <div
     class="flex h-screen overflow-hidden bg-gray-50 text-gray-900 transition-colors duration-300">
     <!-- 左侧导航栏 -->
-    <SideBar :navItems="navItems" :secondaryNavItems="secondaryNavItems" @show-personal-center="showPersonalCenterModal" @show-novel-rank="showNovelRankModal" />
+    <SideBar :navItems="navItems" :secondaryNavItems="secondaryNavItems"
+             @show-personal-center="showPersonalCenterModal"
+             @show-novel-rank="showNovelRankModal" />
     <!-- 主内容区 -->
     <div class="flex-1 flex flex-col overflow-y-auto">
       <!-- 内容滚动区域 -->
@@ -17,9 +19,13 @@
         />
       </main>
     </div>
-    <SearchModal :isVisible="isSearchModalVisible" :templates="templates" @update:isVisible="isSearchModalVisible = $event" />
-    <PersonalCenterModal :isVisible="isPersonalCenterVisible" @update:isVisible="isPersonalCenterVisible = $event" />
-    <NovelRankModal :isVisible="isNovelRankModalVisible" @update:isVisible="isNovelRankModalVisible = $event" @select-novel="handleNovelSelected" />
+    <SearchModal :isVisible="isSearchModalVisible" :templates="templates"
+                 @update:isVisible="isSearchModalVisible = $event" />
+    <PersonalCenterModal :isVisible="isPersonalCenterVisible"
+                         @update:isVisible="isPersonalCenterVisible = $event" />
+    <NovelRankModal :isVisible="isNovelRankModalVisible"
+                    @update:isVisible="isNovelRankModalVisible = $event"
+                    @select-novel="handleNovelSelected" />
   </div>
 </template>
 
@@ -32,6 +38,11 @@ import SearchModal from '@/layouts/homes/SearchModal.vue'
 import PersonalCenterModal from '@/layouts/homes/PersonalCenterModal.vue'
 import NovelRankModal from '@/components/home/NovelRankModal.vue'
 import type { RankItem } from '@/types/rank'
+import {
+  getBookCollection,
+  getPurchasedBooks,
+  getRecentlyReadBooks,
+} from '@/apis/modules/bookApi.ts'
 
 import {
   FileAddOutlined,
@@ -45,8 +56,6 @@ import {
   SettingOutlined,
 } from '@ant-design/icons-vue'
 
-const images = import.meta.glob('@/assets/home/*.{jpg,jpeg,png,webp}', { eager: true, as: 'url' })
-
 // 导航项数据
 const navItems = [
   { icon: FileAddOutlined, label: '新建' },
@@ -57,7 +66,7 @@ const navItems = [
   { icon: HistoryOutlined, label: '历史版本' },
   { icon: StarOutlined, label: '收藏' },
   { icon: DeleteOutlined, label: '回收站' },
-  { icon: SettingOutlined, label: '设置' }
+  { icon: SettingOutlined, label: '设置' },
 ]
 
 // 二级导航数据
@@ -69,121 +78,187 @@ const secondaryNavItems = [
   { label: 'say' },
 ]
 
+const images = import.meta.glob('@/assets/home/*.{jpg,jpeg,png,webp}', { eager: true, as: 'url' })
+
 // 模板数据
 const templates = [
   {
     name: '空白文档',
     description: '创建一个新的空白文档',
     previewUrl: images['/src/assets/home/first.jpg'],
-    avatar: images['/src/assets/home/first.jpg']
+    avatar: images['/src/assets/home/first.jpg'],
   },
   {
     name: '简历模板',
     description: '专业的简历和求职信',
     previewUrl: images['/src/assets/home/second.jpg'],
-    avatar: images['/src/assets/home/second.jpg']
+    avatar: images['/src/assets/home/second.jpg'],
   },
   {
     name: '报告模板',
     description: '正式的报告和文档',
     previewUrl: images['/src/assets/home/third.webp'],
-    avatar: images['/src/assets/home/third.webp']
+    avatar: images['/src/assets/home/third.webp'],
   },
   {
     name: '新闻稿',
     description: '专业的新闻稿格式',
     previewUrl: images['/src/assets/home/fourth.jpg'],
-    avatar: images['/src/assets/home/fourth.jpg']
+    avatar: images['/src/assets/home/fourth.jpg'],
   },
   {
     name: '会议记录',
     description: '结构化的会议记录',
     previewUrl: images['/src/assets/home/fifth.jpg'],
-    avatar: images['/src/assets/home/fifth.jpg']
+    avatar: images['/src/assets/home/fifth.jpg'],
   },
   {
     name: '项目计划',
     description: '详细的项目计划模板',
     previewUrl: images['/src/assets/home/sixth.jpg'],
-    avatar: images['/src/assets/home/sixth.jpg']
-  }
+    avatar: images['/src/assets/home/sixth.jpg'],
+  },
 ]
 
 // 最近文档数据
-const recentDocuments = [
+const recentDocuments = ref([
   {
     name: '2023年度市场分析报告.docx',
     path: 'OneDrive > 市场部 > 年度报告',
     modified: '今天 14:30',
     starred: true,
-    previewUrl: 'https://search.bilibili.com/all?keyword=%E7%83%9F%E8%8A%B1%E6%98%93%E5%86%B7&from_source=webtop_search&spm_id_from=333.1007&search_source=2'
+    previewUrl: 'https://search.bilibili.com/all?keyword=%E7%83%9F%E8%8A%B1%E6%98%93%E5%86%B7&from_source=webtop_search&spm_id_from=333.1007&search_source=2',
   },
   {
     name: '产品开发会议纪要.docx',
     path: '本地 > 工作 > 会议记录',
     modified: '昨天 10:15',
     starred: false,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
   },
   {
     name: '新员工入职指南.docx',
     path: 'SharePoint > 人力资源 > 培训',
     modified: '2023/11/28 09:45',
     starred: true,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
   },
   {
     name: '客户反馈汇总分析.docx',
     path: 'OneDrive > 客户服务 > 分析',
     modified: '2023/11/25 16:20',
     starred: false,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
+  },
+])
+
+const fetchRecentlyReadNovels = async () => {
+  try {
+    const response = await getRecentlyReadBooks()
+    console.log('获取最近阅读小说成功:', response.data)
+    if (response.data && response.data.list) {
+      recentDocuments.value = response.data.list.map((item: unknown) => {
+        const bookItem = item as { bookName?: string; bookLink?: string; updateTime?: string }
+        return {
+          name: bookItem.bookName || '未知小说',
+          path: '本地 > 阅读历史 > 小说',
+          modified: bookItem.updateTime || '',
+          starred: false,
+          previewUrl: bookItem.bookLink || '',
+        }
+      })
+    }
+  } catch (error) {
+    console.error('获取最近阅读小说失败:', error)
   }
-]
+}
 
 // 我的收藏文档数据
-const starredDocuments = [
+const starredDocuments = ref([
   {
     name: '重要项目计划书.docx',
     path: 'OneDrive > 项目部 > 核心文件',
     modified: '2023/12/01 09:00',
     starred: true,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
   },
   {
     name: '年度总结报告.pptx',
     path: '本地 > 个人文件 > 报告',
     modified: '2023/11/30 17:00',
     starred: true,
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
+  },
+])
+
+const fetchCollectedNovels = async () => {
+  try {
+    const response = await getBookCollection()
+    console.log('获取收藏小说成功:', response.data)
+    if (response.data && response.data.list) {
+      starredDocuments.value = response.data.list.map((item: unknown) => {
+        const bookItem = item as { bookName?: string; bookLink?: string; updateTime?: string }
+        return {
+          name: bookItem.bookName || '未知小说',
+          path: '本地 > 个人文件 > 报告',
+          modified: bookItem.updateTime || '',
+          starred: true,
+          previewUrl: bookItem.bookLink || '',
+        }
+      })
+    }
+  } catch (error) {
+    console.error('获取收藏小说失败:', error)
   }
-]
+}
 
 // 最近购买文档数据
-const purchasedDocuments = [
+const purchasedDocuments = ref([
   {
     name: 'Vue.js 3 实战.pdf',
     path: '本地 > 学习 > 前端',
     modified: '今天 09:00',
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
   },
   {
     name: '深入理解 TypeScript.epub',
     path: 'OneDrive > 学习 > 编程',
     modified: '昨天 15:00',
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
   },
   {
     name: '设计模式精讲.mobi',
     path: 'SharePoint > 学习 > 架构',
     modified: '2023/11/29 11:00',
-    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹'
+    previewUrl: 'https://www.owlook.com.cn/chapter?url=http://www.60ksw.com/ks/100/100736/&novels_name=斗破苍穹',
+  },
+])
+
+const fetchPurchasedNovels = async () => {
+  try {
+    const response = await getPurchasedBooks()
+    console.log('获取已购买小说成功:', response.data)
+    if (response.data && response.data.list) {
+      purchasedDocuments.value = response.data.list.map((item: unknown) => {
+        const bookItem = item as { bookName?: string; bookLink?: string; updateTime?: string }
+        return {
+          name: bookItem.bookName || '未知小说',
+          path: '本地 > 学习 > Vue3',
+          modified: bookItem.updateTime || '',
+          previewUrl: bookItem.bookLink || '',
+        }
+      })
+    }
+  } catch (error) {
+    console.error('获取已购买小说失败:', error)
   }
-]
+}
 
 // 初始化
 onMounted(() => {
-  // console.log('实验挂载中……')
+  fetchRecentlyReadNovels()
+  fetchCollectedNovels()
+  fetchPurchasedNovels()
 })
 
 const isSearchModalVisible = ref(false)
@@ -204,10 +279,8 @@ const showNovelRankModal = () => {
 
 const handleNovelSelected = (novel: RankItem) => {
   console.log('Selected Novel:', novel)
-  // 在这里可以添加处理选中小说的逻辑，例如跳转到小说详情页或显示小说内容
 }
 </script>
-
 
 <style scoped lang="scss">
 ::-webkit-scrollbar {

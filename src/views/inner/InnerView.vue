@@ -31,25 +31,58 @@ import QuickAccessToolbar from '@/layouts/inners/QuickAccessToolBar.vue'
 import SidePanel from '@/layouts/inners/SidePanel.vue'
 import StatusBar from '@/layouts/inners/StatusBar.vue'
 import { useEditorStore } from '@/stores/editorStore'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { openBook } from '@/apis/api'
+import { openBook } from '@/apis'
 
 const editorStore = useEditorStore()
 const editorRef = ref<HTMLElement | null>(null)
 const route = useRoute()
 const documentUrl = ref<string | null>(null)
 
+// 用于存储待显示的文本内容
+const contentQueue = ref<string[]>([])
+// 当前已显示的文本
+const displayedContent = ref<string>('')
+
+const handleKeyPress = (event: KeyboardEvent) => {
+  event.preventDefault()
+
+  if (contentQueue.value.length > 0 &&
+    !event.ctrlKey &&
+    !event.altKey &&
+    event.key !== 'Shift' &&
+    event.key !== 'CapsLock' &&
+    event.key !== 'Tab') {
+
+    const nextChar = contentQueue.value.shift()
+    if (nextChar !== undefined) {
+      displayedContent.value += nextChar
+      if (editorRef.value) {
+        editorRef.value.innerHTML = displayedContent.value
+        editorStore.setEditorContent(displayedContent.value)
+      }
+    }
+  }
+}
+
+// 加载章节内容但不直接显示
 const loadChapterContent = async () => {
   if (documentUrl.value) {
     try {
       const response = await openBook(documentUrl.value)
       console.log('Received Content:', response.data)
-      if (response.data && editorRef.value) {
-        editorRef.value.innerHTML = response.data.chapterTxt || ''
-        editorStore.setEditorContent(response.data.chapterTxt || '')
+      if (response.data) {
+        const content = response.data.chapterTxt || ''
+        contentQueue.value = content.split('')
+        displayedContent.value = ''
         editorStore.chapterName = response.data.chapterName
         editorStore.chapterTxtSize = response.data.chapterTxtSize
+
+        if (editorRef.value) {
+          editorRef.value.innerHTML = ''
+          editorStore.setEditorContent('')
+        }
       }
     } catch (error) {
       console.error('加载章节内容失败:', error)
@@ -58,6 +91,8 @@ const loadChapterContent = async () => {
 }
 
 onMounted(async () => {
+  window.addEventListener('keydown', handleKeyPress)
+
   if (editorRef.value) {
     editorRef.value.innerHTML = editorStore.editorContent
   }
@@ -65,8 +100,7 @@ onMounted(async () => {
     documentUrl.value = route.query.url as string
     console.log('Received URL:', documentUrl.value)
 
-    const res = await loadChapterContent()
-    console.log('Loaded Content:', res)
+    await loadChapterContent()
   }
   if (route.query.length) {
     editorStore.chapterLength = Number(route.query.length)
@@ -76,5 +110,9 @@ onMounted(async () => {
     editorStore.chapterBegin = Number(route.query.chapterIndex)
     console.log('Received Begin:', editorStore.chapterBegin)
   }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyPress)
 })
 </script>

@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Input as AInput, Button as AButton, List as AList, Empty as AEmpty } from 'ant-design-vue'
-import { searchBooks, searchChapters } from '@/apis/api'
+import { searchBooks, searchChapters } from '@/apis'
 import type { SearchBookVo } from '@/types/book'
 import type { Chapter } from '@/types/chapter'
 

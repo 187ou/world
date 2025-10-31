@@ -66,7 +66,7 @@ import {
 } from 'ant-design-vue'
 import { formFilters } from '@/filters/formFilters.ts'
 import { useUserStore } from '@/stores/user.ts'
-import { getCurrentUserInfo, updateUserInfo as updateUserInfoApi } from '@/apis/api.ts'
+import { getCurrentUserInfo, updateUserInfo as updateUserInfoApi } from '@/apis'
 import type { UserUpdateDto } from '@/types/userUpdateDto.ts'
 import { useRouter } from 'vue-router'
 

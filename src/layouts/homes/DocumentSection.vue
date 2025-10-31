@@ -23,7 +23,8 @@
               购买
             </a-button>
             <a-button
-              class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]">
+              class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]"
+              @click="handleCollect(doc)">
               收藏
             </a-button>
             <a-button
@@ -48,7 +49,8 @@
               购买
             </a-button>
             <a-button
-              class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]">
+              class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md text-sm font-medium transition-colors transform hover:translate-y-[-2px]"
+              @click="handleRemoveCollect(doc)">
               取消收藏
             </a-button>
             <a-button
@@ -127,6 +129,7 @@ import docIcon from '@/assets/home/文档.png'
 import starIcon from '@/assets/home/收藏.png'
 import buyIcon from '@/assets/home/购买.png'
 import { useUserStore } from '@/stores/user.ts'
+import { addBookCollection, purchaseBook, removeBookCollection } from '@/apis/modules/bookApi.ts'
 
 const router = useRouter()
 
@@ -178,6 +181,7 @@ const handlePurchaseCancel = () => {
 
 const confirmPurchase = async () => {
   if (currentDoc.value?.previewUrl) {
+    console.log(userStore.user)
     if (!userStore.user) {
       message.error('请先登录')
       return
@@ -191,15 +195,23 @@ const confirmPurchase = async () => {
     }
 
     try {
-      console.log('购买文档:', currentDoc.value)
+      const purchaseData = {
+        bookName: currentDoc.value.name,
+        bookLink: currentDoc.value.previewUrl,
+        cost: price
+      }
 
-      // 这里的 level 以及 price 使用后端返回的会员等级和价格，调用后端接口获取到
-      // await userStore.updateUserMoney(userStore.user.id, account, level)
+      const response = await purchaseBook(purchaseData)
+
+      if (response) {
+        message.success('购买成功')
+        window.dispatchEvent(new Event('refreshPurchases'))
+      } else {
+        message.error('购买失败')
+      }
 
       purchaseModalVisible.value = false
       currentDoc.value = null
-
-      message.success('购买成功')
     } catch (error) {
       console.error('购买失败:', error)
       message.error('购买失败')
@@ -210,6 +222,50 @@ const confirmPurchase = async () => {
 const calculatePriceByLevel = (level: number): number => {
   const prices = [10, 10, 8, 5, 3]
   return prices[level] ?? 10
+}
+
+// 添加收藏功能
+const handleCollect = async (doc: DocumentItem) => {
+  try {
+    const collectionData = {
+      bookName: doc.name,
+      bookLink: doc.previewUrl || ''
+    }
+
+    const response = await addBookCollection(collectionData)
+    if (response) {
+      message.success('收藏成功')
+      // 刷新收藏列表
+      window.dispatchEvent(new Event('refreshCollections'))
+    } else {
+      message.error('收藏失败')
+    }
+  } catch (error) {
+    console.error('收藏失败:', error)
+    message.error('收藏失败')
+  }
+}
+
+// 取消收藏功能
+const handleRemoveCollect = async (doc: DocumentItem) => {
+  try {
+    const collectionData = {
+      bookName: doc.name,
+      bookLink: doc.previewUrl || ''
+    }
+
+    const response = await removeBookCollection(collectionData)
+    if (response) {
+      message.success('取消收藏成功')
+      // 刷新收藏列表
+      window.dispatchEvent(new Event('refreshCollections'))
+    } else {
+      message.error('取消收藏失败')
+    }
+  } catch (error) {
+    console.error('取消收藏失败:', error)
+    message.error('取消收藏失败')
+  }
 }
 </script>
 

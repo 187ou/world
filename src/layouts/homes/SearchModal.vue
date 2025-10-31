@@ -49,7 +49,7 @@ import { ref, watch } from 'vue'
 import { InputSearch as AInputSearch, Empty as AEmpty, Spin as ASpin } from 'ant-design-vue'
 import TemplateList from '@/components/home/TemplateList.vue'
 import PreviewModal from '@/components/common/PreviewModal.vue'
-import { searchBooks, searchChapters } from '@/apis/api'
+import { searchBooks, searchChapters } from '@/apis'
 import type { SearchBookVo } from '@/types/book'
 import type { Chapter } from '@/types/chapter'
 

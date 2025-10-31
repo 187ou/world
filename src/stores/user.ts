@@ -10,7 +10,7 @@ interface UserState {
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
     token: localStorage.getItem('token') || '',
-    user: null,
+    user: sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')!) : null,
   }),
 
   getters: {
@@ -19,7 +19,6 @@ export const useUserStore = defineStore('user', {
   },
 
   actions: {
-    // 登录
     async login(payload: LoginPayload) {
       try {
         const res = await login(payload)
@@ -38,6 +37,8 @@ export const useUserStore = defineStore('user', {
             sex: res.data.user.sex,
             phone: res.data.user.phone || '',
           }
+
+          sessionStorage.setItem('user', JSON.stringify(this.user))
 
           return true
         }
@@ -58,10 +59,8 @@ export const useUserStore = defineStore('user', {
       } catch (error) {
         console.error('退出登录失败:', error)
       } finally {
-        this.token = ''
-        this.user = null
-        localStorage.removeItem('token')
-        localStorage.clear()
+        this.clearToken()
+        this.clearUser()
       }
     },
 
@@ -69,12 +68,26 @@ export const useUserStore = defineStore('user', {
       if (this.user && this.user.id === userId) {
         this.user.money = amount
         this.user.level = level
+        sessionStorage.setItem('user', JSON.stringify(this.user))
       }
     },
 
     clearToken() {
       this.token = ''
       localStorage.removeItem('token')
-    }
+    },
+
+    clearUser() {
+      this.user = null
+      sessionStorage.removeItem('user')
+    },
+
+    getUser() {
+      return this.user
+    },
+
+    getToken() {
+      return this.token
+    },
   }
 })

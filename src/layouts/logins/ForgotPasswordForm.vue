@@ -55,7 +55,7 @@ import FormButton from '@/components/logins/FromButton.vue'
 import FormLink from '@/components/logins/FromLink.vue'
 import VerificationCode from '@/components/logins/VerificationCode.vue'
 import { message } from 'ant-design-vue'
-import { resetPassword } from '@/apis/api.ts'
+import { resetPassword } from '@/apis'
 
 const form = ref({
   email: '',

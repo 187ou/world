@@ -18,7 +18,7 @@
         />
         <VerificationCode
           :email="formState.newEmail"
-          :mode="2"
+          :mode="3"
           @send-success="onSendSuccess"
           @send-error="onSendError"
         />
@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { updateEmail } from '@/apis/api'
+import { updateEmail } from '@/apis'
 import { formFilters } from '@/filters/formFilters.ts'
 import VerificationCode from '@/components/logins/VerificationCode.vue'
 

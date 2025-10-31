@@ -10,7 +10,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { registerCode, sendVerificationCode, sendEmailBindCode } from '@/apis/api.ts'
+import {
+  registerCode,
+  sendVerificationCode,
+  sendEmailBindCode,
+  sendUpdatePwdCode,
+} from '@/apis'
 import { message } from 'ant-design-vue'
 import { formFilters } from '@/filters/formFilters'
 import { useUserStore } from '@/stores/user.ts'
@@ -43,6 +48,8 @@ const handleSendCode = async () => {
       res = await sendVerificationCode({ email: props.email })
     } else if (props.mode === 1) {
       res = await registerCode(props.email)
+    } else if (props.mode === 2) {
+      res = await sendUpdatePwdCode({ email: props.email })
     } else {
       const userId = useStore.user?.id
       if (userId === undefined) {
