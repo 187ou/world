@@ -249,6 +249,11 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
         String linkUser = book.getLinkUser();
         Set<String> userIds = GSON.fromJson(linkUser, new TypeToken<Set<String>>(){});
 
+        //判断小说是否被收藏
+        if(!userIds.contains(userId.toString())){
+            throw new BusinessException(ErrorCode.USER_COLLECT_ERROR, "用户未收藏该书籍");
+        }
+
         //删除用户关联记录，并更新小说
         userIds.remove(userId.toString());
         book.setLinkUser(GSON.toJson(userIds));
